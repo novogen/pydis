@@ -2,14 +2,19 @@ from ctypes import create_string_buffer, byref
 
 import typing
 
-from .types import MachineMode, AddressWidth, DecoderMode, Status, OperandType, OperandVisibility, OperandAction, OperandEncoding, ElementTypes, MemOpType, InstructionEncoding, OpcodeMap, CpuFlag, MaskModes, BroadcastModes, RoundingModes, SwizzleModes, ConversionMode, ExceptionClass
-from .zydis_types import Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm, InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast, InstructionMeta as RawInstructionMeta
+from .types import (MachineMode, AddressWidth, DecoderMode, Status, OperandType, OperandVisibility, OperandAction,
+                    OperandEncoding, ElementTypes, MemOpType, InstructionEncoding, OpcodeMap, CpuFlag, MaskModes,
+                    BroadcastModes, RoundingModes, SwizzleModes, ConversionMode, ExceptionClass, InstructionAttribute)
+from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm,
+                          InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast,
+                          InstructionMeta as RawInstructionMeta)
 from .interface import DecoderInit, DecoderDecodeBuffer, CalcAbsoluteAddress
+from .generate_types import Register, InstructionCategory, ISAExt, ISASet, Mnemonic
 
 class AvxMask:
     def __init__(self, avx_mask: RawAvxMask):
         self.mode = MaskModes(avx_mask.mode)
-        self.register = None  # TODO Create ZydisRegister mapping
+        self.register = Register(avx_mask.reg)
         self.is_control_mask = bool(avx_mask.isControlMask)
 
 
@@ -33,9 +38,9 @@ class InstructionAvx:
 
 class InstructionMeta:
     def __init__(self, instruction_meta: RawInstructionMeta):
-        self.category = None  # TODO Create ZydisInstructionCategory mapping
-        self.isa_set = None  # TODO Create ZydisISASets mapping
-        self.isa_ext = None  # TODO Create ZydisISAExts mapping
+        self.category = InstructionCategory(instruction_meta.category)
+        self.isa_set = ISASet(instruction_meta.isaSet)
+        self.isa_ext = ISAExt(instruction_meta.isaExt)
         self.exception_class = ExceptionClass(instruction_meta.exceptionClass)
 
 
@@ -60,9 +65,9 @@ class MemoryImmediate:
 class MemoryOperand:
     def __init__(self, memory_operand: OperandMem):
         self.type = MemOpType(memory_operand.type)
-        self.segment = None # TODO Create ZydisRegister mapping
-        self.base = None # TODO Create ZydisRegister mapping
-        self. index = None # TODO Create ZydisRegister mapping
+        self.segment = Register(memory_operand.segment)
+        self.base = Register(memory_operand.base)
+        self.index = Register(memory_operand.index)
         self.scale = memory_operand.scale
 
         self.displacement = None
@@ -81,7 +86,7 @@ class Operand:
         self.elementSize = operand.elementSize
         self.elementType = ElementTypes(operand.elementType)
         self.elementCount = operand.elementCount
-        self.register = None # TODO Create ZydisRegister mapping
+        self.register = Register(operand.reg.value)
         self.memory = MemoryOperand(operand.mem)
         self.pointer = MemoryPointer(operand.ptr)
         self.immediate = MemoryImmediate(operand.imm)
@@ -90,7 +95,7 @@ class Operand:
 class Instruction:
     def __init__(self, instruction: RawInstruction):
         self.machine_mode = MachineMode(instruction.machineMode)
-        self.mnemonic = None  # TODO
+        self.mnemonic = Mnemonic(instruction.mnemonic)
         self.length = instruction.length
         self.data = bytes(instruction.data)
         self.encoding = InstructionEncoding(instruction.encoding)
@@ -101,7 +106,7 @@ class Instruction:
         self.addressWidth = instruction.addressWidth
         self.operandCount = instruction.operandCount
         self.operands = [Operand(operand) for operand in instruction.operands[:instruction.operandCount]]
-        self.attributes = None  # TODO See ZydisInstructionAttributes
+        self.attributes = InstructionAttribute(instruction.attributes)
         self.instructionAddress = instruction.instructionAddress
         self.accessedFlags = [CpuFlag(flag.action) for flag in instruction.accessedFlags]  # TODO double check this
         self.avx = InstructionAvx(instruction.avx)
@@ -125,7 +130,7 @@ def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,
 
         if status != Status.Success:
             break
-        
+
         instruction = Instruction(instruction)
         buffer_offset += instruction.length
         address += instruction.length
