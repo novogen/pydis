@@ -8,7 +8,7 @@ from .types import (MachineMode, AddressWidth, DecoderMode, Status, OperandType,
 from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm,
                           InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast,
                           InstructionMeta as RawInstructionMeta)
-from .interface import DecoderInit, DecoderDecodeBuffer, CalcAbsoluteAddress
+from .interface import DecoderInit, DecoderDecodeBuffer, MnemonicGetString
 from .generate_types import Register, InstructionCategory, ISAExt, ISASet, Mnemonic
 
 class AvxMask:
@@ -95,7 +95,7 @@ class Operand:
 class Instruction:
     def __init__(self, instruction: RawInstruction):
         self.machine_mode = MachineMode(instruction.machineMode)
-        self.mnemonic = Mnemonic(instruction.mnemonic)
+        self.mnemonic_value = Mnemonic(instruction.mnemonic)
         self.length = instruction.length
         self.data = bytes(instruction.data)
         self.encoding = InstructionEncoding(instruction.encoding)
@@ -112,6 +112,10 @@ class Instruction:
         self.avx = InstructionAvx(instruction.avx)
         self.meta = InstructionMeta(instruction.meta)
         self.raw = instruction.raw  # TODO reevaluate if this needs to be converted at all.
+
+    @property
+    def mnemonic(self):
+        return MnemonicGetString(self.mnemonic_value)
 
 
 def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,

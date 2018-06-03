@@ -1,11 +1,15 @@
 from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL, POINTER,
-                    pointer)
+                    pointer, c_char_p)
 import typing
 
 from .zydis_types import Decoder, Instruction, Operand
 from .types import Feature, MachineMode, AddressWidth, Status, DecoderMode, CpuFlagAction
+from.generate_types import Mnemonic
+
 
 _zydis = CDLL('libZydis.dylib')
+
+# TODO See if byref can be used in these case
 
 _zydis.ZydisGetVersion.argtypes = ()
 _zydis.ZydisGetVersion.restype = c_uint64
@@ -27,6 +31,9 @@ _zydis.ZydisCalcAbsoluteAddress.restype = c_uint32
 
 _zydis.ZydisGetAccessedFlagsByAction.argtypes = (POINTER(Instruction), c_uint8, POINTER(c_uint32))
 _zydis.ZydisGetAccessedFlagsByAction.restype = c_uint32
+
+_zydis.ZydisMnemonicGetString.argtypes = (c_uint64,)
+_zydis.ZydisMnemonicGetString.restype = c_char_p
 
 
 def GetVersion() -> typing.Tuple[int, int , int, int]:
@@ -76,3 +83,7 @@ def GetAccessedFlagsByAction(instruction: Instruction, action: CpuFlagAction) ->
     status = Status(_zydis.ZydisGetAccessedFlagsByAction(pointer(instruction), action, flags))
 
     return (status, flags)
+
+def MnemonicGetString(mnemonic: Mnemonic) -> str:
+    string = _zydis.ZydisMnemonicGetString(mnemonic.value)
+    return string.decode('ascii') if string is not None else ''
