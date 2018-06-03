@@ -38,7 +38,7 @@ class TestInstruction(unittest.TestCase):
         instruction = Instruction(raw_instruction)
 
         self.assertEqual(instruction.machine_mode, MachineMode.Long64)
-        self.assertEqual(instruction.mnemonic, Mnemonic.MOV)  # TODO check once this is in
+        self.assertEqual(instruction.mnemonic_value, Mnemonic.MOV)  # TODO check once this is in
         self.assertEqual(instruction.length, 1)
         self.assertEqual(instruction.encoding, InstructionEncoding.Default)
         self.assertEqual(instruction.opcodeMap, 0)
@@ -96,6 +96,33 @@ class TestInstruction(unittest.TestCase):
         self.assertEqual(meta.isa_ext, ISAExt.AES)
         self.assertEqual(meta.exception_class, ExceptionClass.E1)
 
+    def test_mnemonic_string(self):
+        # TODO replace this block once the Instruction class constructor is improved
+        instruction_bytes = struct.pack(instruction_format,
+                                        MachineMode.Long64.value,
+                                        Mnemonic.MOV.value,  # mnemonic
+                                        1,  # length
+                                        b'Q\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # data
+                                        InstructionEncoding.Default.value,
+                                        0,  # opcodeMap
+                                        81,  # opcode
+                                        64,  # stackWidth
+                                        32,  # operandWidth
+                                        64,  # addressWidth
+                                        3,  # operandCount
+                                        b'\x00' * 640,  # operands
+                                        (InstructionAttribute.Has_SIB | InstructionAttribute.Has_Lock).value,
+                                        4194304,  # instructionAddress
+                                        b'\x00' * 21,  # accessFlags
+                                        b'\x00' * 12,  # avx
+                                        b'\x00' * 4,  # meta
+                                        b'\x00' * 168)  # raw
+
+        raw_instruction = RawInstruction.from_buffer_copy(instruction_bytes)
+
+        instruction = Instruction(raw_instruction)
+
+        self.assertEqual(instruction.mnemonic, 'mov')
 
 if __name__ == '__main__':
     unittest.main()
