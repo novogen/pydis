@@ -1,7 +1,8 @@
 import unittest
 import struct
 
-from pydis.decoder import Operand, RawOperand, OperandMem, MemoryOperand, OperandImm, MemoryImmediate
+from pydis.decoder import (Operand, RawOperand, OperandMem, MemoryOperand, OperandImm,
+                           MemoryImmediate, OperandPtr, MemoryPointer)
 from pydis.types import MemOpType, OperandVisibility, OperandAction, OperandEncoding, ElementTypes
 from pydis.generate_types import Register
 
@@ -40,49 +41,42 @@ class TestOperand(unittest.TestCase):
         self.assertEqual(operand.action, OperandAction.Read)
         self.assertEqual(operand.encoding, OperandEncoding.Opcode),
         self.assertEqual(operand.size, 1)
-        self.assertEqual(operand.elementType, ElementTypes.Int)
-        self.assertEqual(operand.elementSize, 2)
-        self.assertEqual(operand.elementCount, 1)
+        self.assertEqual(operand.element_type, ElementTypes.Int)
+        self.assertEqual(operand.element_size, 2)
+        self.assertEqual(operand.element_count, 1)
         self.assertEqual(operand.register, Register.BL)
 
 
     def test_memory_operand(self):
-        operand_mem_bytes = struct.pack(operand_mem_format, 1, 1, 1, 1, 1, 1, 0)
+        operand_mem_bytes = struct.pack(operand_mem_format, MemOpType.Agen.value,
+                                        Register.EAX, Register.ECX, Register.EDX, 1, 1, 0)
         raw_operand_mem = OperandMem.from_buffer_copy(operand_mem_bytes)
         operand_mem = MemoryOperand(raw_operand_mem)
 
         # Test that all the fields decoded as expected
         self.assertEqual(operand_mem.type, MemOpType.Agen)
-        # TODO self.assertEqual(operand_mem.segment, TODO)
-        # TODO self.assertEqual(operand_mem.base, TODO)
-        # TODO self.assertEqual(operand_mem.index, TODO)
+        self.assertEqual(operand_mem.segment, Register.EAX)
+        self.assertEqual(operand_mem.base, Register.ECX)
+        self.assertEqual(operand_mem.index, Register.EDX)
         self.assertEqual(operand_mem.displacement, 0)
 
         operand_mem_bytes = struct.pack(operand_mem_format, 1, 1, 1, 1, 1, 0, 1)
         raw_operand_mem = OperandMem.from_buffer_copy(operand_mem_bytes)
         operand_mem = MemoryOperand(raw_operand_mem)
 
-        # Test that if there is no displacement the field is set to None
-        self.assertEqual(operand_mem.displacement, None)
+        # Test that if there is no displacement the field is set to 0
+        self.assertEqual(operand_mem.displacement, 0)
 
     def test_memory_pointer(self):
-        operand_mem_bytes = struct.pack(operand_mem_format, 1, 1, 1, 1, 1, 1, 0)
-        raw_operand_mem = OperandMem.from_buffer_copy(operand_mem_bytes)
-        operand_mem = MemoryOperand(raw_operand_mem)
+        operand_ptr_bytes = struct.pack(operand_ptr_format,
+                                        5,  #segment
+                                        1)  # offset
+        raw_operand_ptr = OperandPtr.from_buffer_copy(operand_ptr_bytes)
+        operand_ptr = MemoryPointer(raw_operand_ptr)
 
         # Test that all the fields decoded as expected
-        self.assertEqual(operand_mem.type, MemOpType.Agen)
-        # TODO self.assertEqual(operand_mem.segment, TODO)
-        # TODO self.assertEqual(operand_mem.base, TODO)
-        # TODO self.assertEqual(operand_mem.index, TODO)
-        self.assertEqual(operand_mem.displacement, 0)
-
-        operand_mem_bytes = struct.pack(operand_mem_format, 1, 1, 1, 1, 1, 0, 1)
-        raw_operand_mem = OperandMem.from_buffer_copy(operand_mem_bytes)
-        operand_mem = MemoryOperand(raw_operand_mem)
-
-        # Test that if there is no displacement the field is set to None
-        self.assertEqual(operand_mem.displacement, None)
+        self.assertEqual(operand_ptr.segment, 5)
+        self.assertEqual(operand_ptr.offset, 1)
 
     def test_memory_immediate(self):
         operand_imm_bytes = struct.pack('BB6xQ', 1, 1, 0)

@@ -11,86 +11,256 @@ from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, 
 from .interface import DecoderInit, DecoderDecodeBuffer, MnemonicGetString
 from .generate_types import Register, InstructionCategory, ISAExt, ISASet, Mnemonic
 
+
 class AvxMask:
     def __init__(self, avx_mask: RawAvxMask):
-        self.mode = MaskModes(avx_mask.mode)
-        self.register = Register(avx_mask.reg)
-        self.is_control_mask = bool(avx_mask.isControlMask)
+        self._avx_mask = avx_mask
+
+    @property
+    def mode(self) -> MaskModes:
+        return MaskModes(self._avx_mask.mode)
+
+    @property
+    def register(self) -> Register:
+        return Register(self._avx_mask.reg)
+
+    @property
+    def is_control_mask(self) -> bool:
+        return bool(self._avx_mask.isControlMask)
+
+    @property
+    def underlying_type(self) -> RawAvxMask:
+        return self._avx_mask
 
 
 class AvxBroadcast:
     def __init__(self, avx_broadcast: RawAvxBroadcast):
-        self.is_static = bool(avx_broadcast.isStatic)
-        self.mode = BroadcastModes(avx_broadcast.mode)
+        self._avx_broadcast = avx_broadcast
+
+    @property
+    def is_static(self) -> bool:
+        return bool(self._avx_broadcast.isStatic)
+
+    @property
+    def mode(self) -> BroadcastModes:
+        return BroadcastModes(self._avx_broadcast.mode)
+
+    @property
+    def underlying_type(self) -> RawAvxBroadcast:
+        return self._avx_broadcast
 
 
 class InstructionAvx:
     def __init__(self, instruction_avx: RawInstructionAvx):
-        self.vector_length = instruction_avx.vectorLength
-        self.mask = AvxMask(instruction_avx.mask)
-        self.broadcast = AvxBroadcast(instruction_avx.broadcast)
-        self.rounding = RoundingModes(instruction_avx.rounding.mode)
-        self.swizzle = SwizzleModes(instruction_avx.swizzle.mode)
-        self.conversion = ConversionMode(instruction_avx.conversion.mode)
-        self.has_sae = bool(instruction_avx.hasSAE)
-        self.has_eviction_hint = bool(instruction_avx.hasEvictionHint)
+        self._instruction_avx = instruction_avx
+
+    @property
+    def vector_length(self) -> int:
+        return self._instruction_avx.vectorLength
+
+    @property
+    def mask(self) -> AvxMask:
+        return AvxMask(self._instruction_avx.mask)
+
+    @property
+    def broadcast(self) -> AvxBroadcast:
+        return AvxBroadcast(self._instruction_avx.broadcast)
+
+    @property
+    def rounding(self) -> RoundingModes:
+        return RoundingModes(self._instruction_avx.rounding.mode)
+
+    @property
+    def swizzle(self) -> SwizzleModes:
+        return SwizzleModes(self._instruction_avx.swizzle.mode)
+
+    @property
+    def conversion(self) -> ConversionMode:
+        return ConversionMode(self._instruction_avx.conversion.mode)
+
+    @property
+    def has_sae(self) -> bool:
+        return bool(self._instruction_avx.hasSAE)
+
+    @property
+    def has_eviction_hint(self) -> int:
+        return bool(self._instruction_avx.hasEvictionHint)
+
+    @property
+    def underlying_type(self) -> RawInstructionAvx:
+        return self._instruction_avx
 
 
 class InstructionMeta:
     def __init__(self, instruction_meta: RawInstructionMeta):
-        self.category = InstructionCategory(instruction_meta.category)
-        self.isa_set = ISASet(instruction_meta.isaSet)
-        self.isa_ext = ISAExt(instruction_meta.isaExt)
-        self.exception_class = ExceptionClass(instruction_meta.exceptionClass)
+        self._instruction_meta = instruction_meta
+
+    @property
+    def category(self) -> InstructionCategory:
+        return InstructionCategory(self._instruction_meta.category)
+
+    @property
+    def isa_set(self) -> ISASet:
+        return ISASet(self._instruction_meta.isaSet)
+
+    @property
+    def isa_ext(self) -> ISAExt:
+        return ISAExt(self._instruction_meta.isaExt)
+
+    @property
+    def exception_class(self) -> ExceptionClass:
+        return ExceptionClass(self._instruction_meta.exceptionClass)
+
+    @property
+    def underlying_type(self) -> RawInstructionMeta:
+        return self._instruction_meta
 
 
 class MemoryPointer:
     def __init__(self, memory_pointer: OperandPtr):
-        self.segment = memory_pointer.segment
-        self.offset = memory_pointer.offset
+        self._memory_pointer = memory_pointer
+
+    @property
+    def segment(self) -> int:
+        return self._memory_pointer.segment
+
+    @property
+    def offset(self) -> int:
+        return self._memory_pointer.offset
+
+    @property
+    def underlying_type(self) -> OperandImm:
+        return self._memory_pointer
 
 
+# TODO Figure out a way to calculate relative offsets
 class MemoryImmediate:
     def __init__(self, memory_immediate: OperandImm):
-        # TODO Figure out a way to calculate relative offsets
-        self.is_signed = bool(memory_immediate.isSigned)
-        self.is_relative = bool(memory_immediate.isRelative)
+        self._memory_immediate = memory_immediate
 
-        if self.is_signed:
-            self.value = memory_immediate.value.s
-        else:
-            self.value = memory_immediate.value.u
+    @property
+    def is_signed(self) -> bool:
+        return bool(self._memory_immediate.isSigned)
+
+    @property
+    def is_relative(self) -> bool:
+        return bool(self._memory_immediate.isRelative)
+
+    @property
+    def value(self) -> int:
+        return self._memory_immediate.value.s if self.is_signed else self._memory_immediate.value.u
+
+    @property
+    def underlying_type(self) -> OperandImm:
+        return self._memory_immediate
 
 
 class MemoryOperand:
     def __init__(self, memory_operand: OperandMem):
-        self.type = MemOpType(memory_operand.type)
-        self.segment = Register(memory_operand.segment)
-        self.base = Register(memory_operand.base)
-        self.index = Register(memory_operand.index)
-        self.scale = memory_operand.scale
+        self._memory_operand = memory_operand
 
-        self.displacement = None
-        if memory_operand.disp.hasDisplacement:
-            self.displacement = memory_operand.disp.value
+    @property
+    def type(self) -> MemOpType:
+        return MemOpType(self._memory_operand.type)
+
+    @property
+    def segment(self) -> Register:
+        return Register(self._memory_operand.segment)
+
+    @property
+    def base(self) -> Register:
+        return Register(self._memory_operand.base)
+
+    @property
+    def index(self) -> Register:
+        return Register(self._memory_operand.index)
+
+    @property
+    def scale(self) -> int:
+        return self._memory_operand.scale
+
+    @property
+    def displacement(self) -> int:
+        if self._memory_operand.disp.hasDisplacement:
+            return self._memory_operand.disp.value
+        return 0
+
+    @property
+    def underlying_type(self) -> OperandMem:
+        return self._memory_operand
 
 
 class Operand:
     def __init__(self, operand: RawOperand):
-        self.id = operand.id
-        self.type =  OperandType(operand.type)
-        self.visibility = OperandVisibility(operand.visibility)
-        self.action = OperandAction(operand.action)
-        self.encoding = OperandEncoding(operand.encoding)
-        self.size = operand.size
-        self.elementSize = operand.elementSize
-        self.elementType = ElementTypes(operand.elementType)
-        self.elementCount = operand.elementCount
-        self.register = Register(operand.reg.value)
-        self.memory = MemoryOperand(operand.mem)
-        self.pointer = MemoryPointer(operand.ptr)
-        self.immediate = MemoryImmediate(operand.imm)
-        self.operand = operand
+        self._operand = operand
+
+    @property
+    def id(self) -> int:
+        return self._operand.id
+
+    @property
+    def type(self):
+        return OperandType(self._operand.type)
+
+    @property
+    def visibility(self) -> OperandVisibility:
+        return OperandVisibility(self._operand.visibility)
+
+    @property
+    def action(self) -> OperandAction:
+        return OperandAction(self._operand.action)
+
+    @property
+    def encoding(self) -> OperandEncoding:
+        return OperandEncoding(self._operand.encoding)
+
+    @property
+    def size(self) -> int:
+        return self._operand.size
+
+    @property
+    def element_size(self) -> int:
+        return self._operand.elementSize
+
+    @property
+    def element_type(self) -> ElementTypes:
+        return ElementTypes(self._operand.elementType)
+
+    @property
+    def element_count(self) -> int:
+        return self._operand.elementCount
+
+    @property
+    def register(self) -> ElementTypes:
+        return Register(self._operand.reg.value)
+
+    @property
+    def memory(self) -> MemoryOperand:
+        if hasattr(self, '_memory'):
+            return self._memory
+
+        self._memory = MemoryOperand(self._operand.mem)
+        return self._memory
+
+    @property
+    def pointer(self) -> MemoryPointer:
+        if hasattr(self, '_pointer'):
+            return self._pointer
+
+        self._pointer =  MemoryPointer(self._operand.ptr)
+        return self._pointer
+
+    @property
+    def immediate(self) -> MemoryImmediate:
+        if hasattr(self, '_immediate'):
+            return self._immediate
+
+        self._immediate = MemoryImmediate(self._operand.imm)
+        return self._immediate
+
+    @property
+    def underlying_type(self) -> RawOperand:
+        return self._operand
 
 
 class Instruction:
@@ -179,7 +349,6 @@ class Instruction:
     def raw(self):
         return InstructionAvx(self._instruction.avx)
 
-    # TODO Copy returned type
     @property
     def underlying_type(self) -> RawInstruction:
         return self._instruction
@@ -208,4 +377,4 @@ def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,
         yield instruction
 
     if status != Status.NoMoreData:
-        raise Exception(f'Failed while decoding: {status}')
+        raise Exception(f'Failed while decoding: {status.name}')
