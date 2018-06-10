@@ -15,7 +15,7 @@ class TestFormatter(unittest.TestCase):
 
         instruction = next(decode(b'Q'))
 
-        self.assertEqual(formatter.format_instruction(instruction), 'push rcx')
+        self.assertEqual(formatter.format_instruction(instruction.underlying_type), 'push rcx')
 
     def test_uppercase_letters(self):
         formatter = Formatter()
@@ -23,7 +23,7 @@ class TestFormatter(unittest.TestCase):
 
         instruction = next(decode(b'Q'))
 
-        self.assertEqual(formatter.format_instruction(instruction), 'PUSH RCX')
+        self.assertEqual(formatter.format_instruction(instruction.underlying_type), 'PUSH RCX')
 
 
 if __name__ == '__main__':

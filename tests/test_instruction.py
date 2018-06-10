@@ -1,8 +1,8 @@
 import unittest
 import struct
 
-from pydis.decoder import (Instruction, RawInstruction, InstructionAvx, RawInstructionAvx, InstructionMeta,\
-                           RawInstructionMeta)
+from pydis.instruction import (Instruction, RawInstruction, InstructionAvx, RawInstructionAvx, InstructionMeta,\
+                               RawInstructionMeta)
 from pydis.types import (MachineMode, InstructionEncoding, MaskModes, BroadcastModes, RoundingModes, SwizzleModes,
                          ConversionMode, ExceptionClass, InstructionAttribute)
 from pydis.generate_types import InstructionCategory, ISAExt, ISASet, Mnemonic

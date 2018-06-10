@@ -1,8 +1,8 @@
 import unittest
 import struct
 
-from pydis.decoder import (Operand, RawOperand, OperandMem, MemoryOperand, OperandImm,
-                           MemoryImmediate, OperandPtr, MemoryPointer)
+from pydis.instruction import (Operand, RawOperand, OperandMem, MemoryOperand, OperandImm,
+                               MemoryImmediate, OperandPtr, MemoryPointer)
 from pydis.types import MemOpType, OperandVisibility, OperandAction, OperandEncoding, ElementTypes
 from pydis.generate_types import Register
 
