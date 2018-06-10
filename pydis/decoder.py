@@ -90,6 +90,7 @@ class Operand:
         self.memory = MemoryOperand(operand.mem)
         self.pointer = MemoryPointer(operand.ptr)
         self.immediate = MemoryImmediate(operand.imm)
+        self.operand = operand
 
 
 class Instruction:
@@ -112,6 +113,7 @@ class Instruction:
         self.avx = InstructionAvx(instruction.avx)
         self.meta = InstructionMeta(instruction.meta)
         self.raw = instruction.raw  # TODO reevaluate if this needs to be converted at all.
+        self.instruction = instruction
 
     @property
     def mnemonic(self):

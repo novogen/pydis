@@ -1,15 +1,14 @@
 from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL, POINTER,
-                    pointer, c_char_p)
+                    pointer, c_char_p, c_void_p)
 import typing
 
-from .zydis_types import Decoder, Instruction, Operand
-from .types import Feature, MachineMode, AddressWidth, Status, DecoderMode, CpuFlagAction
+from .zydis_types import Decoder, Instruction, Operand, Formatter
+from .types import (Feature, MachineMode, AddressWidth, Status, DecoderMode, CpuFlagAction, FormatterStyle,
+                    FormatterProperty)
 from.generate_types import Mnemonic
 
 
 _zydis = CDLL('libZydis.dylib')
-
-# TODO See if byref can be used in these case
 
 _zydis.ZydisGetVersion.argtypes = ()
 _zydis.ZydisGetVersion.restype = c_uint64
@@ -34,6 +33,29 @@ _zydis.ZydisGetAccessedFlagsByAction.restype = c_uint32
 
 _zydis.ZydisMnemonicGetString.argtypes = (c_uint64,)
 _zydis.ZydisMnemonicGetString.restype = c_char_p
+
+_zydis.ZydisFormatterInit.argtypes = (POINTER(Formatter), c_uint8)
+_zydis.ZydisFormatterInit.restype = c_uint32
+
+_zydis.ZydisFormatterSetProperty.argtypes = (POINTER(Formatter), c_uint8, c_void_p)
+_zydis.ZydisFormatterSetProperty.restype = c_uint32
+
+_zydis.ZydisFormatterSetHook.argtypes = (POINTER(Formatter), c_uint8, POINTER(c_void_p))
+_zydis.ZydisFormatterSetHook.restype = c_uint32
+
+_zydis.ZydisFormatterFormatInstruction.argtypes = (POINTER(Formatter), POINTER(Instruction), c_char_p, c_uint32)
+_zydis.ZydisFormatterFormatInstruction.restype = c_uint32
+
+_zydis.ZydisFormatterFormatInstructionEx.argtypes = (POINTER(Formatter), POINTER(Instruction), c_char_p, c_uint32,
+                                                     c_void_p)
+_zydis.ZydisFormatterFormatInstructionEx.restype = c_uint32
+
+_zydis.ZydisFormatterFormatOperand.argtypes = (POINTER(Formatter), POINTER(Instruction), c_uint8, c_char_p, c_uint32)
+_zydis.ZydisFormatterFormatOperand.restype = c_uint32
+
+_zydis.ZydisFormatterFormatOperandEx.argtypes = (POINTER(Formatter), POINTER(Instruction), c_uint8, c_char_p, c_uint32,
+                                                 c_void_p)
+_zydis.ZydisFormatterFormatOperandEx.restype = c_uint32
 
 
 def GetVersion() -> typing.Tuple[int, int , int, int]:
@@ -84,6 +106,34 @@ def GetAccessedFlagsByAction(instruction: Instruction, action: CpuFlagAction) ->
 
     return (status, flags)
 
+
 def MnemonicGetString(mnemonic: Mnemonic) -> str:
     string = _zydis.ZydisMnemonicGetString(mnemonic.value)
     return string.decode('ascii') if string is not None else ''
+
+
+def FormatterInit(style: FormatterStyle = FormatterStyle.Intel) -> typing.Tuple[Status, Formatter]:
+    formatter = Formatter()
+    status = Status(_zydis.ZydisFormatterInit(pointer(formatter), style))
+
+    return (status, formatter)
+
+
+def FormatterSetProperty(formatter: Formatter, property: FormatterProperty, value: int) -> Status:
+    return Status(_zydis.ZydisFormatterSetProperty(pointer(formatter), property, value))
+
+
+def FormatterFormatInstruction(formatter: Formatter, instruction: Instruction) -> typing.Tuple[Status, str]:
+    buffer = b'\x00' * 128
+    status = Status(_zydis.ZydisFormatterFormatInstruction(pointer(formatter), pointer(instruction),
+                                                           buffer, len(buffer)))
+    buffer = buffer.decode('ascii').partition('\x00')[0] if status == Status.Success else ''
+    return (status, buffer)
+
+
+def FormatterFormatOperand(formatter: Formatter, instruction: Instruction, index: int) -> typing.Tuple[Status, str]:
+    buffer = b'\x00' * 128
+    status = Status(_zydis.ZydisFormatterFormatOperand(pointer(formatter), pointer(instruction), index, buffer,
+                                                       len(buffer)))
+    buffer = buffer.decode('ascii').partition('\x00')[0] if status == Status.Success else ''
+    return (status, buffer)
