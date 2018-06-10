@@ -14,14 +14,14 @@ class Formatter:
         self._formatter = formatter
 
     def format_instruction(self, instruction: Instruction):
-        status, string = FormatterFormatInstruction(self._formatter, instruction.instruction)
+        status, string = FormatterFormatInstruction(self._formatter, instruction.underlying_type)
         if status != Status.Success:
             raise Exception(f'Failed to format instruction: {status.name}')
 
         return string
 
     def format_operand(self, instruction: Instruction, operand_index: int):
-        status, string = FormatterFormatOperand(self._formatter, instruction.instruction, operand_index)
+        status, string = FormatterFormatOperand(self._formatter, instruction.underlying_type, operand_index)
         if status != Status.Success:
             raise Exception(f'Failed to format operand: {status.name}')
 

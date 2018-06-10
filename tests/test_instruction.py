@@ -41,14 +41,14 @@ class TestInstruction(unittest.TestCase):
         self.assertEqual(instruction.mnemonic_value, Mnemonic.MOV)  # TODO check once this is in
         self.assertEqual(instruction.length, 1)
         self.assertEqual(instruction.encoding, InstructionEncoding.Default)
-        self.assertEqual(instruction.opcodeMap, 0)
+        self.assertEqual(instruction.opcode_map, 0)
         self.assertEqual(instruction.opcode, 81)
-        self.assertEqual(instruction.stackWidth, 64)
-        self.assertEqual(instruction.operandWidth, 32)
-        self.assertEqual(instruction.addressWidth, 64)
-        self.assertEqual(instruction.operandCount, 3)
+        self.assertEqual(instruction.stack_width, 64)
+        self.assertEqual(instruction.operand_width, 32)
+        self.assertEqual(instruction.address_width, 64)
+        self.assertEqual(len(instruction.operands), 3)
         self.assertEqual(instruction.attributes, InstructionAttribute.Has_SIB | InstructionAttribute.Has_Lock)
-        self.assertEqual(instruction.instructionAddress, 4194304)
+        self.assertEqual(instruction.address, 4194304)
 
     def test_avx_decode(self):
         avx_bytes = struct.pack(avx_format,

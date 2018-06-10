@@ -95,29 +95,94 @@ class Operand:
 
 class Instruction:
     def __init__(self, instruction: RawInstruction):
-        self.machine_mode = MachineMode(instruction.machineMode)
-        self.mnemonic_value = Mnemonic(instruction.mnemonic)
-        self.length = instruction.length
-        self.data = bytes(instruction.data)
-        self.encoding = InstructionEncoding(instruction.encoding)
-        self.opcodeMap = OpcodeMap(instruction.opcodeMap)
-        self.opcode = instruction.opcode
-        self.stackWidth = instruction.stackWidth
-        self.operandWidth = instruction.operandWidth
-        self.addressWidth = instruction.addressWidth
-        self.operandCount = instruction.operandCount
-        self.operands = [Operand(operand) for operand in instruction.operands[:instruction.operandCount]]
-        self.attributes = InstructionAttribute(instruction.attributes)
-        self.instructionAddress = instruction.instructionAddress
-        self.accessedFlags = [CpuFlag(flag.action) for flag in instruction.accessedFlags]  # TODO double check this
-        self.avx = InstructionAvx(instruction.avx)
-        self.meta = InstructionMeta(instruction.meta)
-        self.raw = instruction.raw  # TODO reevaluate if this needs to be converted at all.
-        self.instruction = instruction
+        self._instruction = instruction
+
+    @property
+    def machine_mode(self) -> MachineMode:
+        return MachineMode(self._instruction.machineMode)
 
     @property
     def mnemonic(self):
-        return MnemonicGetString(self.mnemonic_value)
+        if hasattr(self, '_mnemonic'):
+            return self._mnemonic
+
+        self._mnemonic = MnemonicGetString(self.mnemonic_value)
+        return self._mnemonic
+
+    @property
+    def mnemonic_value(self) -> Mnemonic:
+        return Mnemonic(self._instruction.mnemonic)
+
+    @property
+    def length(self) -> int:
+        return self._instruction.length
+
+    @property
+    def bytes(self) -> bytes:
+        return bytes(self._instruction.data[0:self._instruction.length])
+
+    @property
+    def encoding(self) -> InstructionEncoding:
+        return InstructionEncoding(self._instruction.encoding)
+
+    @property
+    def opcode_map(self) -> OpcodeMap:
+        return OpcodeMap(self._instruction.opcodeMap)
+
+    @property
+    def opcode(self) -> int:
+        return self._instruction.opcode
+
+    @property
+    def stack_width(self) -> int:
+        return self._instruction.stackWidth
+
+    @property
+    def operand_width(self) -> int:
+        return self._instruction.operandWidth
+
+    @property
+    def address_width(self) -> int:
+        return self._instruction.addressWidth
+
+    @property
+    def operands(self) -> [Operand]:
+        if hasattr(self, '_operands'):
+            return self._operands
+
+        self._operands = [Operand(operand) for operand in self._instruction.operands[:self._instruction.operandCount]]
+        return self._operands
+
+    @property
+    def attributes(self) -> InstructionAttribute:
+        return InstructionAttribute(self._instruction.attributes)
+
+    @property
+    def address(self) -> int:
+        return self._instruction.instructionAddress
+
+    # TODO double check functionality of this property
+    @property
+    def accessed_flags(self) -> [CpuFlag]:
+        return [CpuFlag(flag.action) for flag in self._instruction.accessedFlags]
+
+    @property
+    def avx(self) -> InstructionAvx:
+        return InstructionAvx(self._instruction.avx)
+
+    @property
+    def meta(self) -> InstructionMeta:
+        return InstructionMeta(self._instruction.meta)
+
+    # TODO Copy returned type and add type annotation
+    @property
+    def raw(self):
+        return InstructionAvx(self._instruction.avx)
+
+    # TODO Copy returned type
+    @property
+    def underlying_type(self) -> RawInstruction:
+        return self._instruction
 
 
 def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,
