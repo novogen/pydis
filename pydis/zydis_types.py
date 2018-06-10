@@ -1,4 +1,5 @@
-from ctypes import c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL, POINTER
+from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL,
+                    POINTER, c_char_p, CFUNCTYPE)
 
 MaxInstructionLength = 15
 MaxOperandCount = 10
@@ -228,3 +229,47 @@ class Instruction(Structure):
                 ('avx', InstructionAvx),
                 ('meta', InstructionMeta),
                 ('raw', InstructionRaw)]
+
+class String(Structure):
+    _fields_ = [('buffer', c_char_p),
+                ('length', c_size_t),
+                ('capacity', c_size_t)]
+
+FormatterFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), c_char_p)
+FormatterOperandFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_char_p)
+FormatterRegisterFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_uint8, c_char_p)
+FormatterAddressFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_uint64, c_char_p)
+FormatterDecoratorFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_uint8, c_char_p)
+
+class Formatter(Structure):
+    _fields_ = [('letterCase', c_uint8),
+                ('forceMemorySegment', c_uint8),
+                ('forceMemorySize', c_uint8),
+                ('formatAddress', c_uint8),
+                ('formatDisp', c_uint8),
+                ('formatImm', c_uint8),
+                ('hexUppercase', c_uint8),
+                ('hexPrefix', POINTER(String)),
+                ('hexPrefixData', String),
+                ('hexSuffix', POINTER(String)),
+                ('hexSuffixData', String),
+                ('hexPaddingAddress', c_uint8),
+                ('hexPAddingDisp', c_uint8),
+                ('hexPaddingImm', c_uint8),
+                ('funcPreInstruction', FormatterFunc),
+                ('funcPostInstruction', FormatterFunc),
+                ('funcPreOperand', FormatterOperandFunc),
+                ('funcPostOperand', FormatterOperandFunc),
+                ('funcFormatInstruction', FormatterFunc),
+                ('funcFormatOperandReg', FormatterOperandFunc),
+                ('funcFormatOperandMem', FormatterOperandFunc),
+                ('funcFormatOperandPtr', FormatterOperandFunc),
+                ('funcFormatOperandImm', FormatterOperandFunc),
+                ('funcPrintMnemonic', FormatterFunc),
+                ('funcPrintRegister', FormatterRegisterFunc),
+                ('funcPrintAddress', FormatterAddressFunc),
+                ('funcPrintDisp', FormatterOperandFunc),
+                ('funcPrintImm', FormatterOperandFunc),
+                ('funcPrintMemSize', FormatterOperandFunc),
+                ('funcPrintPrefixes', FormatterFunc),
+                ('funcPrintDecorator', FormatterDecoratorFunc)]

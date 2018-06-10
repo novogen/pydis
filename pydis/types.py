@@ -536,6 +536,7 @@ class OpcodeMap(IntEnum):
     Map_XOP9 = 6
     Map_XOPA = 7
 
+
 class InstructionAttribute(IntFlag):
     Has_ModRM = 0x1
     Has_SIB = 0x2
@@ -579,3 +580,123 @@ class InstructionAttribute(IntFlag):
     Has_Segment_GS = 0x200000000
     Has_Operand_Size = 0x400000000
     Has_Address_Size = 0x800000000
+
+
+class FormatterStyle(IntEnum):
+    Intel = 0
+
+
+class FormatterProperty(IntEnum):
+    Uppercase = 0
+    MemSeg = 1
+    MemSize = 2
+    Address_Format = 3
+    Displacement_Format = 4
+    Immediate_Format = 5
+    Hex_Uppercase = 6
+    Hex_Prefix = 6
+    Hex_Suffix = 7
+    Hex_Padding_Address = 8
+    Hex_Padding_Displacement = 9
+    Hex_Padding_Immediate = 10
+
+
+class LetterCase(IntEnum):
+    Default = 0
+    Lower = 1
+    Upper = 2
+
+
+class AddressFormat(IntEnum):
+    Absolute = 0
+    Relative_Signed = 1
+    Relative_Unsigned = 2
+
+
+class DisplacementFormat(IntEnum):
+    Hex_Signed = 0
+    Hex_Unsigned = 1
+
+
+class ImmediateFormat(IntEnum):
+    Hex_Auto = 0
+    Hex_Signed = 1
+    Hex_Unsiged = 2
+
+
+class FormatterHookType(IntEnum):
+
+    ''' This function is invoked before the formatter formats an instruction. '''
+    Pre_Instruction = 0
+
+    ''' This function is invoked after the formatter formatted an instruction. '''
+    Post_Instruction = 1
+
+    ''' This function is invoked before the formatter formats an operand. '''
+    Pre_Operand = 2
+
+    ''' This function is invoked after the formatter formatted an operand. '''
+    Post_Operand = 3
+
+    ''' This function refers to the main formatting function. '''
+    Format_Instruction = 4
+
+    ''' This function is invoked to format a register operand. '''
+    Format_Operand_Reg = 5
+
+    ''' This function is invoked to format a memory operand. '''
+    Format_Operand_Mem = 6
+
+    ''' This function is invoked to format a pointer operand. '''
+    Format_Operand_Ptr = 7
+
+    ''' This function is invoked to format an immediate operand. '''
+    Format_Operand_Imm = 8
+
+    ''' This function is invoked to print the instruction mnemonic. '''
+    Print_Mnemonic = 9
+
+    ''' This function is invoked to print a register. '''
+    Print_Register = 10
+
+    ''' This function is invoked to print an absolute address. '''
+    Print_Address = 11
+
+    ''' This function is invoked to print a memory displacement value. '''
+    Print_Disp = 12
+
+    ''' This function is invoked to print an immediate value. '''
+    Print_Imm = 13
+
+    ''' This function is invoked to print the size of a memory operand. '''
+    Print_Memsize = 14
+
+    ''' This function is invoked to print the instruction prefixes. '''
+    Print_Prefixes = 15
+
+    ''' This function is invoked after formatting an operand to print a `EVEX`/`MVEX` '''
+    Print_Decorator = 16
+
+
+class DecoratorType(IntEnum):
+
+    ''' The embedded-mask decorator. '''
+    Mask = 0
+
+    ''' The broadcast decorator. '''
+    Bc = 1
+
+    ''' The rounding-control decorator. '''
+    Rc = 2
+
+    ''' The suppress-all-exceptions decorator. '''
+    Sae = 3
+
+    ''' The register-swizzle decorator. '''
+    Swizzle = 4
+
+    ''' The conversion decorator. '''
+    Conversion = 5
+
+    ''' The eviction-hint decorator. '''
+    Eh = 6
