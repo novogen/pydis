@@ -197,7 +197,7 @@ class Operand:
         return self._operand.id
 
     @property
-    def type(self):
+    def type(self) -> OperandType:
         return OperandType(self._operand.type)
 
     @property

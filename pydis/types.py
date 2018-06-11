@@ -538,6 +538,7 @@ class OpcodeMap(IntEnum):
 
 
 class InstructionAttribute(IntFlag):
+    NoAttributes = 0x0
     Has_ModRM = 0x1
     Has_SIB = 0x2
     Has_Rex = 0x4
