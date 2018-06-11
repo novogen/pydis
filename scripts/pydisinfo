@@ -136,9 +136,6 @@ def main():
     if len(input_bytes) > pydis.MaxInstructionLength:
         print(f'Maximum number of {pydis.MaxInstructionLength} bytes exceeded', file=sys.stderr)
         return pydis.Status.InvalidParameter
-    elif len(input_bytes) % 2 == 1:
-        print('Even number of hex nibbles expected', file=sys.stderr)
-        return pydis.Status.InvalidParameter
 
     try:
         instruction = next(pydis.decode(input_bytes, mode=mode, address_width=width))
