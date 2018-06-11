@@ -7,6 +7,7 @@ def setup_package():
         version=0.0,
         packages=['pydis'],
         python_requires='>=3.6',
+        scripts=['scripts/pydisinfo'],
     )
 
 

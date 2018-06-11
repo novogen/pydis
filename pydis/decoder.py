@@ -7,8 +7,8 @@ from .interface import DecoderInit, DecoderDecodeBuffer
 from .instruction import Instruction
 
 def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,
-           addressWidth: AddressWidth = AddressWidth.Width64) -> typing.Generator[Instruction, None, None]:
-    status, decoder = DecoderInit(mode, addressWidth)
+           address_width: AddressWidth = AddressWidth.Width64) -> typing.Generator[Instruction, None, None]:
+    status, decoder = DecoderInit(mode, address_width)
 
     if status != Status.Success:
         raise Exception(f'Failed to initialize the decoder: {status.name}')
