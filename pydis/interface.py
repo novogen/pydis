@@ -37,7 +37,7 @@ _zydis.ZydisMnemonicGetString.restype = c_char_p
 _zydis.ZydisRegisterGetId.argtypes = (c_uint8,)
 _zydis.ZydisRegisterGetId.restype = c_int16
 
-_zydis.ZydisRegisterGetClass.argtypes = (c_uint8)
+_zydis.ZydisRegisterGetClass.argtypes = (c_uint8,)
 _zydis.ZydisRegisterGetClass.restype = (c_uint8)
 
 _zydis.ZydisRegisterGetString.argtypes = (c_uint8,)

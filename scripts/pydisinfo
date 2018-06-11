@@ -59,13 +59,13 @@ def print_operands(instruction):
         print(f'{i:02}  {operand.type.name:>9}  {operand.visibility.name:>10}  {get_action_string(operand.action):>6}  {operand.encoding.name:>12}  {operand.size:5}   {operand.element_count:4}  {operand.element_size:7}  {operand.element_type:>8}', end='')
 
         if operand.type == pydis.OperandType.Register:
-            print(f'  {operand.register:>27}')
+            print(f'  {str(operand.register):>27}')
         elif operand.type == pydis.OperandType.Memory:
             print(f'  TYPE  ={operand.memory.type.name:>20}')
-            print(f'  {"SEG  ":>85} ={operand.memory.segment:>20}')
-            print(f'  {"BASE ":>85} ={operand.memory.base:>20}')
-            print(f'  {"INDEX":>85} ={operand.memory.index:>20}')
-            print(f'  {"SCALE":>85} ={operand.memory.scale:>20}')
+            print(f'  {"SEG  ":>85} ={str(operand.memory.segment):>20}')
+            print(f'  {"BASE ":>85} ={str(operand.memory.base):>20}')
+            print(f'  {"INDEX":>85} ={str(operand.memory.index):>20}')
+            print(f'  {"SCALE":>85} ={str(operand.memory.scale):>20}')
             print(f'  {"DISP ":>85} =  0x{operand.memory.displacement:016X}')
         elif operand.type == pydis.OperandType.Immediate:
             if operand.immediate.is_signed:
