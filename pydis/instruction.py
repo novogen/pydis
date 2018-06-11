@@ -4,9 +4,41 @@ from .types import (MachineMode, OperandType, OperandVisibility, OperandAction, 
 from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm,
                           InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast,
                           InstructionMeta as RawInstructionMeta)
-from .interface import MnemonicGetString
-from .generate_types import Register, InstructionCategory, ISAExt, ISASet, Mnemonic
+from .interface import MnemonicGetString, RegisterGetString, RegisterGetClass, RegisterGetId
+from .generate_types import Register as RegisterEnum, InstructionCategory, ISAExt, ISASet, Mnemonic
 from .formatter import Formatter, default_formatter
+
+
+class Register(int):
+    def __new__(cls, value):
+        return int.__new__(cls, RegisterEnum(value))
+
+    def __str__(self) -> str:
+        if hasattr(self, '_str'):
+            return self._str
+
+        self._str = RegisterGetString(self)
+        return self._str
+
+    def __repr__(self) -> str:
+        return f'Register({repr(RegisterEnum(self))})'
+
+    @property
+    def value(self) -> int:
+        return int(self)
+
+    @property
+    def name(self) -> str:
+        return RegisterEnum(self).name
+
+    @property
+    def id(self) -> int:
+        return RegisterGetId(self)
+
+    @property
+    def register_class(self) -> int:
+        return RegisterGetClass(self)
+
 
 class AvxMask:
     def __init__(self, avx_mask: RawAvxMask):
