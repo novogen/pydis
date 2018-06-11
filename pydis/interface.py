@@ -1,11 +1,11 @@
 from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL, POINTER,
-                    pointer, c_char_p, c_void_p)
+                    pointer, c_char_p, c_void_p, c_int16)
 import typing
 
 from .zydis_types import Decoder, Instruction, Operand, Formatter
 from .types import (Feature, MachineMode, AddressWidth, Status, DecoderMode, CpuFlagAction, FormatterStyle,
-                    FormatterProperty)
-from.generate_types import Mnemonic
+                    FormatterProperty, RegisterClass)
+from.generate_types import Mnemonic, Register
 
 
 _zydis = CDLL('libZydis.dylib')
@@ -33,6 +33,15 @@ _zydis.ZydisGetAccessedFlagsByAction.restype = c_uint32
 
 _zydis.ZydisMnemonicGetString.argtypes = (c_uint64,)
 _zydis.ZydisMnemonicGetString.restype = c_char_p
+
+_zydis.ZydisRegisterGetId.argtypes = (c_uint8,)
+_zydis.ZydisRegisterGetId.restype = c_int16
+
+_zydis.ZydisRegisterGetClass.argtypes = (c_uint8)
+_zydis.ZydisRegisterGetClass.restype = (c_uint8)
+
+_zydis.ZydisRegisterGetString.argtypes = (c_uint8,)
+_zydis.ZydisRegisterGetString.restype = c_char_p
 
 _zydis.ZydisFormatterInit.argtypes = (POINTER(Formatter), c_uint8)
 _zydis.ZydisFormatterInit.restype = c_uint32
@@ -109,6 +118,19 @@ def GetAccessedFlagsByAction(instruction: Instruction, action: CpuFlagAction) ->
 
 def MnemonicGetString(mnemonic: Mnemonic) -> str:
     string = _zydis.ZydisMnemonicGetString(mnemonic.value)
+    return string.decode('ascii') if string is not None else ''
+
+
+def RegisterGetId(register: Register) -> int:
+    return _zydis.ZydisRegisterGetId(register)
+
+
+def RegisterGetClass(register: Register) -> RegisterClass:
+    return RegisterClass(_zydis.ZydisRegisterGetClass(register))
+
+
+def RegisterGetString(register: Register):
+    string = _zydis.ZydisRegisterGetString(register)
     return string.decode('ascii') if string is not None else ''
 
 
