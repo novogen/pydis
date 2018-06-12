@@ -1,3 +1,5 @@
+import os
+import sys
 from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL, POINTER,
                     pointer, c_char_p, c_void_p, c_int16)
 import typing
@@ -8,7 +10,14 @@ from .types import (Feature, MachineMode, AddressWidth, Status, DecoderMode, Cpu
 from.generate_types import Mnemonic, Register
 
 
-_zydis = CDLL('libZydis.dylib')
+if sys.platform == 'darwin':
+    _library_name = 'libZydis.dylib'
+elif sys.platform in ('cygwin', 'win32'):
+    _library_name = 'libZydis.dll'
+else:
+    _library_name = 'libZydis.so'
+
+_zydis = CDLL(os.path.join(os.path.dirname(__file__), 'lib', _library_name))
 
 _zydis.ZydisGetVersion.argtypes = ()
 _zydis.ZydisGetVersion.restype = c_uint64
