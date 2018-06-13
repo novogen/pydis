@@ -5,8 +5,7 @@ import subprocess
 
 from setuptools import setup
 from setuptools.command.develop import develop
-from distutils.command.build import build
-from distutils.command.sdist import sdist
+from distutils.util import get_platform
 
 
 package_dir = os.path.dirname(os.path.abspath(__file__))
@@ -71,7 +70,37 @@ class DevelopCommand(develop):
         return develop.run(self)
 
 
+def set_wheel_tags():
+    # See
+    # https://www.python.org/dev/peps/pep-0425/
+    # https://www.python.org/dev/peps/pep-0491/#file-name-convention
+
+    try:
+        bdist_index = sys.argv.index('bdist_wheel')
+    except ValueError:
+        return
+
+    if '--plat-name' not in sys.argv:
+        sys.argv.insert(bdist_index + 1, '--plat-name')
+
+        platform_name = get_platform()
+        platform_name = platform_name.replace('-', '_').replace('.', '_')
+
+        # https://www.python.org/dev/peps/pep-0513/
+        if 'linux' in platform_name:
+            platform_name = platform_name.replace('linux', 'manylinux1')
+
+        sys.argv.insert(bdist_index + 2, platform_name)
+
+    if '--python-tag' not in sys.argv:
+        # Currently this is only tested on CPython
+        # Since ctypes is used it may not work on other python interpreters.
+        sys.argv.insert(bdist_index + 1, '--python-tag')
+        sys.argv.insert(bdist_index + 2, 'cp3')
+
 def setup_package():
+    set_wheel_tags()
+
     setup(
         name='pydis',
         description='Python bindings for Zydis',
