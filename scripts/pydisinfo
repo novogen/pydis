@@ -12,13 +12,17 @@ def separate_int_flag(value):
 
     return flags
 
+
 def get_action_string(action):
     actions = ('INV', 'R', 'W', 'RW', 'CR', 'CW', 'RCW', 'CRW')
     return actions[action]
 
+
 def print_instruction(instruction):
-    print('== [    BASIC ] =============================================================================================')
-    print(f'   MNEMONIC: {instruction.mnemonic} [ENC: {instruction.encoding.name}, MAP: {instruction.opcode_map.name}, OPC: {instruction.opcode:02X}]')
+    print('== [    BASIC ] ============================================================================================'
+          '=')
+    print(f'   MNEMONIC: {instruction.mnemonic} [ENC: {instruction.encoding.name}, MAP: {instruction.opcode_map.name},'
+          f'OPC: {instruction.opcode:02X}]')
     print(f'     LENGTH: {instruction.length:2}')
     print(f'        SSZ: {instruction.stack_width:2}')
     print(f'       EOSZ: {instruction.operand_width:2}')
@@ -38,26 +42,31 @@ def print_instruction(instruction):
         print()
         print_operands(instruction)
 
-    # TODO Register class stuff line 534
-
-
-    if instruction.encoding in (pydis.InstructionEncoding.XOP, pydis.InstructionEncoding.VEX, pydis.InstructionEncoding.EVEX, pydis.InstructionEncoding.MVEX):
+    if instruction.encoding in (pydis.InstructionEncoding.XOP, pydis.InstructionEncoding.VEX,
+                                pydis.InstructionEncoding.EVEX, pydis.InstructionEncoding.MVEX):
         print_avx_info(instruction)
 
     pydis.default_formatter.print_segment_registers = True
     pydis.default_formatter.print_operand_sizes = True
 
     print()
-    print('== [   DISASM ] =============================================================================================')
+    print('== [   DISASM ] ============================================================================================'
+          '=')
     print(f'  {instruction}')
 
+
 def print_operands(instruction):
-    print('== [ OPERANDS ] =============================================================================================')
-    print('##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ   ELEMTYPE                        VALUE')
-    print('--  ---------  ----------  ------  ------------   ----  -----  ------   --------  ---------------------------')
+    print('== [ OPERANDS ] ============================================================================================'
+          '=')
+    print('##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ   ELEMTYPE                        VALU'
+          'E')
+    print('--  ---------  ----------  ------  ------------   ----  -----  ------   --------  --------------------------'
+          '-')
 
     for i, operand in enumerate(instruction.operands):
-        print(f'{i:02}  {operand.type.name:>9}  {operand.visibility.name:>10}  {get_action_string(operand.action):>6}  {operand.encoding.name:>12}  {operand.size:5}   {operand.element_count:4}  {operand.element_size:7}  {operand.element_type:>8}', end='')
+        print(f'{i:02}  {operand.type.name:>9}  {operand.visibility.name:>10}  {get_action_string(operand.action):>6}  '
+              f'{operand.encoding.name:>12}  {operand.size:5}   {operand.element_count:4}  {operand.element_size:7}  '
+              f'{operand.element_type:>8}', end='')
 
         if operand.type == pydis.OperandType.Register:
             print(f'  {str(operand.register):>27}')
@@ -75,12 +84,14 @@ def print_operands(instruction):
         else:
             print()  # end the current line
 
-        print('--  ---------  ----------  ------  ------------   ----  -----  ------   --------  ---------------------------')
+        print('--  ---------  ----------  ------  ------------   ----  -----  ------   --------  ----------------------'
+              '-----')
 
 
 def print_avx_info(instruction):
     static = ' (static)' if instruction.avx.broadcast.is_static else ''
-    print('== [      AVX ] ============================================================================================')
+    print('== [      AVX ] ==========================================================================================='
+          '=')
     print(f'  VECTORLEN: {instruction.avx.vector_length:03}')
     print(f'  BROADCAST: {instruction.avx.broadcast.mode.name}{static}')
 

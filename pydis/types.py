@@ -1,5 +1,6 @@
 from enum import IntEnum, IntFlag
 
+
 class MachineMode(IntEnum):
     Invalid = 0
 
@@ -323,7 +324,7 @@ class MemOpType(IntEnum):
     ''' The memory operand is only used for address-generation. No real memory-access is caused. '''
     Agen = 1
 
-    ''' A memory operand using `SIB` addressing form, where the index register is not used 
+    ''' A memory operand using `SIB` addressing form, where the index register is not used
         in address calculation and scale is ignored. No real memory-access is caused.
     '''
     MIB = 2
@@ -345,6 +346,7 @@ class BroadcastModes(IntEnum):
     Mode_4_To_8 = 10
     Mode_4_To_16 = 11
     Mode_8_To_16 = 12
+
 
 class RoundingModes(IntEnum):
     """ Values that represent AVX rounding-modes. """
@@ -526,7 +528,7 @@ class InstructionEncoding(IntEnum):
 
 class OpcodeMap(IntEnum):
     """ Values that represent opcode-maps. """
-    
+
     Default = 0
     Map_0F = 1
     Map_0F38 = 2

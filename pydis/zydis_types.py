@@ -1,26 +1,32 @@
-from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL,
-                    POINTER, c_char_p, CFUNCTYPE)
+from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_size_t, c_char_p, Structure, Union, POINTER,
+                    CFUNCTYPE)
+
 
 MaxInstructionLength = 15
 MaxOperandCount = 10
 MaxCPUFlag = 20
 MaxDecoderMode = 8
 
+
 class Decoder(Structure):
     _fields_ = [('machineMode', c_uint8),
                 ('addressWidth', c_uint8),
                 ('decoderMode', c_uint8 * MaxDecoderMode)]
 
+
 class OperandValue(Union):
     _fields_ = [('s', c_int64),
                 ('u', c_uint64)]
 
+
 class OperandReg(Structure):
     _fields_ = [('value', c_uint8)]
+
 
 class OperandMemDisp(Structure):
     _fields_ = [('hasDisplacement', c_uint8),
                 ('value', c_int64)]
+
 
 class OperandMem(Structure):
     _fields_ = [('type', c_uint8),
@@ -30,14 +36,17 @@ class OperandMem(Structure):
                 ('scale', c_uint8),
                 ('disp', OperandMemDisp)]
 
+
 class OperandPtr(Structure):
     _fields_ = [('segment', c_uint16),
                 ('offset', c_uint32)]
+
 
 class OperandImm(Structure):
     _fields_ = [('isSigned', c_uint8),
                 ('isRelative', c_uint8),
                 ('value', OperandValue)]
+
 
 class Operand(Structure):
     _fields_ = [('id', c_uint8),
@@ -54,6 +63,7 @@ class Operand(Structure):
                 ('ptr', OperandPtr),
                 ('imm', OperandImm)]
 
+
 class Prefixes(Structure):
     _fields_ = [('data', c_uint8 * (MaxInstructionLength - 1)),
                 ('count', c_uint8),
@@ -69,6 +79,7 @@ class Prefixes(Structure):
                 ('has66', c_uint8),
                 ('has67', c_uint8)]
 
+
 class Rex(Structure):
     _fields_ = [('isDecoded', c_uint8),
                 ('data', c_uint8 * 1),
@@ -76,6 +87,7 @@ class Rex(Structure):
                 ('R', c_uint8),
                 ('X', c_uint8),
                 ('B', c_uint8)]
+
 
 class Xop(Structure):
     _fields_ = [('isDecoded', c_uint8),
@@ -89,6 +101,7 @@ class Xop(Structure):
                 ('L', c_uint8),
                 ('pp', c_uint8)]
 
+
 class Vex(Structure):
     _fields_ = [('isDecoded', c_uint8),
                 ('data', c_uint8 * 3),
@@ -100,6 +113,7 @@ class Vex(Structure):
                 ('vvvv', c_uint8),
                 ('L', c_uint8),
                 ('pp', c_uint8)]
+
 
 class Evex(Structure):
     _fields_ = [('isDecoded', c_uint8),
@@ -117,7 +131,8 @@ class Evex(Structure):
                 ('L', c_uint8),
                 ('b', c_uint8),
                 ('V2', c_uint8),
-                ('aaa', c_uint8),]
+                ('aaa', c_uint8)]
+
 
 class Mvex(Structure):
     _fields_ = [('isDecoded', c_uint8),
@@ -135,12 +150,14 @@ class Mvex(Structure):
                 ('V2', c_uint8),
                 ('kkk', c_uint8)]
 
+
 class Modrm(Structure):
     _fields_ = [('isDecoded', c_uint8),
                 ('data', c_uint8 * 1),
                 ('mod', c_uint8),
                 ('reg', c_uint8),
                 ('rm', c_uint8)]
+
 
 class Sib(Structure):
     _fields_ = [('isDecoded', c_uint8),
@@ -149,10 +166,12 @@ class Sib(Structure):
                 ('index', c_uint8),
                 ('base', c_uint8)]
 
+
 class Disp(Structure):
     _fields_ = [('value', c_int64),
                 ('size', c_uint8),
                 ('offset', c_uint8)]
+
 
 class Imm(Structure):
     _fields_ = [('isSigned', c_uint8),
@@ -160,6 +179,7 @@ class Imm(Structure):
                 ('value', OperandValue),
                 ('size', c_uint8),
                 ('offset', c_uint8)]
+
 
 class InstructionRaw(Structure):
     _fields_ = [('prefixes', Prefixes),
@@ -173,23 +193,29 @@ class InstructionRaw(Structure):
                 ('disp', Disp),
                 ('imm', Imm * 2)]
 
+
 class AvxMask(Structure):
     _fields_ = [('mode', c_uint8),
                 ('reg', c_uint8),
                 ('isControlMask', c_uint8)]
 
+
 class AvxBroadcast(Structure):
     _fields_ = [('isStatic', c_uint8),
                 ('mode', c_uint8)]
 
+
 class AvxRounding(Structure):
     _fields_ = [('mode', c_uint8)]
+
 
 class AvxSwizzle(Structure):
     _fields_ = [('mode', c_uint8)]
 
+
 class AvxConversion(Structure):
     _fields_ = [('mode', c_uint8)]
+
 
 class InstructionAvx(Structure):
     _fields_ = [('vectorLength', c_uint16),
@@ -201,14 +227,17 @@ class InstructionAvx(Structure):
                 ('hasSAE', c_uint8),
                 ('hasEvictionHint', c_uint8)]
 
+
 class InstructionMeta(Structure):
     _fields_ = [('category', c_uint8),
                 ('isaSet', c_uint8),
                 ('isaExt', c_uint8),
                 ('exceptionClass', c_uint8)]
 
+
 class InstructionAccessFlag(Structure):
     _fields_ = [('action', c_uint8)]
+
 
 class Instruction(Structure):
     _fields_ = [('machineMode', c_uint8),
@@ -230,16 +259,19 @@ class Instruction(Structure):
                 ('meta', InstructionMeta),
                 ('raw', InstructionRaw)]
 
+
 class String(Structure):
     _fields_ = [('buffer', c_char_p),
                 ('length', c_size_t),
                 ('capacity', c_size_t)]
+
 
 FormatterFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), c_char_p)
 FormatterOperandFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_char_p)
 FormatterRegisterFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_uint8, c_char_p)
 FormatterAddressFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_uint64, c_char_p)
 FormatterDecoratorFunc = CFUNCTYPE(c_char_p, POINTER(String), POINTER(Instruction), POINTER(Operand), c_uint8, c_char_p)
+
 
 class Formatter(Structure):
     _fields_ = [('letterCase', c_uint8),
