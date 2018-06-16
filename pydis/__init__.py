@@ -16,3 +16,5 @@ __all__ = ['AddressFormat', 'AddressWidth', 'BroadcastModes', 'ConversionMode', 
            'OperandEncoding', 'OperandType', 'OperandVisibility', 'RegisterClass', 'RoundingModes', 'Status',
            'SwizzleModes', 'VectorLength', 'decode', 'default_formatter', 'ISAExt', 'ISASet', 'InstructionCategory',
            'Mnemonic']
+
+__version__ = '0.1'
