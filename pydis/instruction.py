@@ -277,7 +277,7 @@ class Operand:
         if hasattr(self, '_pointer'):
             return self._pointer
 
-        self._pointer =  MemoryPointer(self._operand.ptr)
+        self._pointer = MemoryPointer(self._operand.ptr)
         return self._pointer
 
     @property

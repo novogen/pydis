@@ -1,7 +1,6 @@
 import os
 import sys
-from ctypes import (c_uint8, c_uint16, c_uint32, c_int64, c_uint64, c_void_p, c_size_t, Structure, Union, CDLL, POINTER,
-                    pointer, c_char_p, c_void_p, c_int16)
+from ctypes import c_uint8, c_uint32, c_uint64, c_void_p, c_size_t, CDLL, POINTER, pointer, c_char_p, c_int16
 import typing
 
 from .zydis_types import Decoder, Instruction, Operand, Formatter
@@ -76,7 +75,7 @@ _zydis.ZydisFormatterFormatOperandEx.argtypes = (POINTER(Formatter), POINTER(Ins
 _zydis.ZydisFormatterFormatOperandEx.restype = c_uint32
 
 
-def GetVersion() -> typing.Tuple[int, int , int, int]:
+def GetVersion() -> typing.Tuple[int, int, int, int]:
     version_number = _zydis.ZydisGetVersion()
 
     major = (version_number & 0xFFFF000000000000) >> 48

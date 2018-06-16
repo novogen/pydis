@@ -3,6 +3,7 @@ from .types import (Status, FormatterStyle, FormatterProperty, LetterCase, Addre
 from .interface import FormatterInit, FormatterSetProperty, FormatterFormatInstruction, FormatterFormatOperand
 from .zydis_types import Instruction
 
+
 class Formatter:
     def __init__(self, style: FormatterStyle = FormatterStyle.Intel):
         status, formatter = FormatterInit(style)
@@ -81,5 +82,6 @@ class Formatter:
     @immediate_format.setter
     def immediate_format(self, format: ImmediateFormat):
         FormatterSetProperty(self._formatter, FormatterProperty.Immediate_Format, format)
+
 
 default_formatter = Formatter()
