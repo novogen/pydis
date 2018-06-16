@@ -6,6 +6,7 @@ import subprocess
 from setuptools import setup
 from setuptools.command.develop import develop
 from distutils.util import get_platform
+from distutils.command.build import build
 
 
 package_dir = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +43,7 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
 
-    subprocess.check_call(['cmake', os.path.abspath(source_dir), '-DBUILD_SHARED_LIBS=ON'], cwd=build_dir)
+    subprocess.check_call(['cmake', os.path.abspath(source_dir), '-DBUILD_SHARED_LIBS=ON', '-DZYDIS_NO_LIBC=ON'], cwd=build_dir)
     subprocess.check_call(['cmake', '--build', '.'], cwd=build_dir)
 
     if not os.path.exists(library_path):
@@ -60,21 +61,42 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
 
     return True
 
+
+def build_zydis(command):
+    library_path = os.path.join(package_dir, 'pydis/lib/')
+    library = os.path.join(library_path, library_name)
+    if not os.path.exists(library):
+        clone_zydis()
+        cmake_build(os.path.join(package_dir, 'zydis/'), library_name, dest_dir=library_path)
+    else:
+        command.announce('Zydis already built')
+
+
 class DevelopCommand(develop):
     def run(self):
-        library_path = os.path.join(package_dir, 'pydis/lib/')
-        library = os.path.join(library_path, library_name)
-        if os.path.exists(library):
-            clone_zydis()
-            cmake_build(os.path.join(package_dir, 'zydis/'), library_name, dest_dir=library_path)
-        return develop.run(self)
+        self.execute(build_zydis, (self,), msg='Building Zydis')
+        develop.run(self)
+
+
+class BuildCommand(build):
+    def run(self):
+        self.execute(build_zydis, (self,), msg='Building Zydis')
+        return build.run(self)
 
 
 def set_wheel_tags():
-    # See
-    # https://www.python.org/dev/peps/pep-0425/
-    # https://www.python.org/dev/peps/pep-0491/#file-name-convention
+    """
+    See:
+        https://www.python.org/dev/peps/pep-0425/
+        https://www.python.org/dev/peps/pep-0491/#file-name-convention
+    and for macs:
+        https://github.com/MacPython/wiki/wiki/Spinning-wheels
 
+    If the wheel is not supported on the platform you can debug why by looking
+    at the result of:
+        python3 -c 'from pip._internal import pep425tags; print(pep425tags.get_supported())
+    The result is all the valid tag combinations your platform supports.
+    """
     try:
         bdist_index = sys.argv.index('bdist_wheel')
     except ValueError:
@@ -96,7 +118,8 @@ def set_wheel_tags():
         # Currently this is only tested on CPython
         # Since ctypes is used it may not work on other python interpreters.
         sys.argv.insert(bdist_index + 1, '--python-tag')
-        sys.argv.insert(bdist_index + 2, 'cp3')
+        sys.argv.insert(bdist_index + 2, 'cp36')
+
 
 def setup_package():
     set_wheel_tags()
@@ -109,6 +132,7 @@ def setup_package():
         python_requires='>=3.6',
         scripts=['scripts/pydisinfo'],
         cmdclass={
+            'build': BuildCommand,
             'develop': DevelopCommand
         },
         package_data={
