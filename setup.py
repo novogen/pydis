@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import shutil
 import subprocess
@@ -117,6 +118,11 @@ def set_wheel_tags(at_index):
         sys.argv.insert(at_index + 2, 'cp36')
 
 
+def get_version():
+    with open(os.path.join('pydis', '__init__.py')) as f:
+        return re.search(r'__version__ = \'(.*?)\'', f.read()).group(1) or '0.0'
+
+
 def setup_package():
     try:
         bdist_index = sys.argv.index('bdist_wheel')
@@ -127,7 +133,7 @@ def setup_package():
     setup(
         name='pydis',
         description='Python bindings for Zydis',
-        version=0.0,
+        version=get_version(),
         packages=['pydis'],
         python_requires='>=3.6',
         scripts=['scripts/pydisinfo'],
