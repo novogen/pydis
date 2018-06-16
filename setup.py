@@ -43,7 +43,8 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
 
-    subprocess.check_call(['cmake', os.path.abspath(source_dir), '-DBUILD_SHARED_LIBS=ON', '-DZYDIS_NO_LIBC=ON'], cwd=build_dir)
+    subprocess.check_call(['cmake', os.path.abspath(source_dir), '-DBUILD_SHARED_LIBS=ON', '-DZYDIS_NO_LIBC=ON'],
+                          cwd=build_dir)
     subprocess.check_call(['cmake', '--build', '.'], cwd=build_dir)
 
     if not os.path.exists(library_path):
@@ -84,7 +85,7 @@ class BuildCommand(build):
         return build.run(self)
 
 
-def set_wheel_tags():
+def set_wheel_tags(at_index):
     """
     See:
         https://www.python.org/dev/peps/pep-0425/
@@ -97,13 +98,8 @@ def set_wheel_tags():
         python3 -c 'from pip._internal import pep425tags; print(pep425tags.get_supported())
     The result is all the valid tag combinations your platform supports.
     """
-    try:
-        bdist_index = sys.argv.index('bdist_wheel')
-    except ValueError:
-        return
-
     if '--plat-name' not in sys.argv:
-        sys.argv.insert(bdist_index + 1, '--plat-name')
+        sys.argv.insert(at_index + 1, '--plat-name')
 
         platform_name = get_platform()
         platform_name = platform_name.replace('-', '_').replace('.', '_')
@@ -112,17 +108,21 @@ def set_wheel_tags():
         if 'linux' in platform_name:
             platform_name = platform_name.replace('linux', 'manylinux1')
 
-        sys.argv.insert(bdist_index + 2, platform_name)
+        sys.argv.insert(at_index + 2, platform_name)
 
     if '--python-tag' not in sys.argv:
         # Currently this is only tested on CPython
         # Since ctypes is used it may not work on other python interpreters.
-        sys.argv.insert(bdist_index + 1, '--python-tag')
-        sys.argv.insert(bdist_index + 2, 'cp36')
+        sys.argv.insert(at_index + 1, '--python-tag')
+        sys.argv.insert(at_index + 2, 'cp36')
 
 
 def setup_package():
-    set_wheel_tags()
+    try:
+        bdist_index = sys.argv.index('bdist_wheel')
+        set_wheel_tags(bdist_index)
+    except ValueError:
+        pass
 
     setup(
         name='pydis',
