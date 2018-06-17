@@ -12,7 +12,7 @@ from.generate_types import Mnemonic, Register
 if sys.platform == 'darwin':
     _library_name = 'libZydis.dylib'
 elif sys.platform in ('cygwin', 'win32'):
-    _library_name = 'libZydis.dll'
+    _library_name = 'Zydis.dll'
 else:
     _library_name = 'libZydis.so'
 

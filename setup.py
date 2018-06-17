@@ -15,25 +15,20 @@ package_dir = os.path.dirname(os.path.abspath(__file__))
 if sys.platform == 'darwin':
     library_name = 'libZydis.dylib'
 elif sys.platform in ('cygwin', 'win32'):
-    library_name = 'libZydis.dll'
+    library_name = 'Zydis.dll'
 else:
     library_name = 'libZydis.so'
 
 
-def clone_zydis():
-    zydis_path = os.path.join(package_dir, 'zydis/')
-    if os.path.exists(zydis_path):
-        # Assume that the repo is cloned already
-        return True
+def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.join(package_dir, 'build'),
+                dest_dir=os.path.join(package_dir, 'lib'), debug_build=False):
+    release_mode = 'Debug' if debug_build else 'Release'
 
-    subprocess.check_call(['git', 'submodule', '--init'], cwd=package_dir)
-
-    return True
-
-
-def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.join(package_dir, 'build/'),
-                dest_dir=os.path.join(package_dir, 'lib/')):
-    library_path = os.path.join(build_dir, library_name)
+    on_windows = sys.platform in ('cygwin', 'win32')
+    if on_windows:
+        library_path = os.path.join(build_dir, release_mode, library_name)
+    else:
+        library_path = os.path.join(build_dir, library_name)
 
     if clean_build:
         shutil.rmtree(build_dir)
@@ -44,13 +39,16 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
 
-    subprocess.check_call(['cmake', os.path.abspath(source_dir), '-DBUILD_SHARED_LIBS=ON', '-DZYDIS_NO_LIBC=ON'],
-                          cwd=build_dir)
-    subprocess.check_call(['cmake', '--build', '.'], cwd=build_dir)
+    build_options = ['-DBUILD_SHARED_LIBS=ON']
+
+    if on_windows:
+        build_options += ['-A',  'x64']
+
+    subprocess.check_call(['cmake', os.path.abspath(source_dir)] + build_options, cwd=build_dir)
+    subprocess.check_call(['cmake', '--build', '.', '--config', release_mode], cwd=build_dir)
 
     if not os.path.exists(library_path):
-        print('Unable to find library', file=sys.stderr)
-        return False
+        raise Exception(f'Unable to find library after building at {library_path}')
 
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
@@ -61,28 +59,30 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
 
     shutil.move(library_path, dest_file)
 
-    return True
 
-
-def build_zydis(command):
-    library_path = os.path.join(package_dir, 'pydis/lib/')
+def build_zydis(command, debug_build):
+    library_path = os.path.join(package_dir, 'pydis', 'lib')
     library = os.path.join(library_path, library_name)
+
+    if not os.path.exists(os.path.join(package_dir, 'pydis', 'zydis')):
+        subprocess.check_call(['git', 'submodule', 'init'], cwd=package_dir)
+
     if not os.path.exists(library):
-        clone_zydis()
-        cmake_build(os.path.join(package_dir, 'zydis/'), library_name, dest_dir=library_path)
+        cmake_build(os.path.join(package_dir, 'pydis', 'zydis'), library_name, dest_dir=library_path,
+                    debug_build=debug_build)
     else:
         command.announce('Zydis already built')
 
 
 class DevelopCommand(develop):
     def run(self):
-        self.execute(build_zydis, (self,), msg='Building Zydis')
+        self.execute(build_zydis, (self, True), msg='Building Zydis')
         develop.run(self)
 
 
 class BuildCommand(build):
     def run(self):
-        self.execute(build_zydis, (self,), msg='Building Zydis')
+        self.execute(build_zydis, (self, False), msg='Building Zydis')
         return build.run(self)
 
 
@@ -133,12 +133,13 @@ def setup_package():
     with open('README.md') as readme:
         long_description = readme.read()
 
-    package_data = ['LICENSE']
-
     if 'sdist' not in sys.argv:
-        package_data.append(os.path.join('lib', library_name))
+        package_data = [os.path.join('lib', library_name)]
+    else:
+        # Include zydis' source in sdist builds
+        package_data = ['zydis/**/*']
 
-    setup(
+    setup_args = dict(
         name='py_dis',
         author='Kyle',
         author_email='kyle@novogen.org',
@@ -167,6 +168,8 @@ def setup_package():
             'Operating System :: Unix'
         ),
     )
+
+    setup(**setup_args)
 
 
 if __name__ == '__main__':
