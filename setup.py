@@ -128,18 +128,18 @@ def setup_package():
         bdist_index = sys.argv.index('bdist_wheel')
         set_wheel_tags(bdist_index)
     except ValueError:
-        bdist_index = None
+        pass
 
     with open('README.md') as readme:
         long_description = readme.read()
 
     package_data = ['LICENSE']
 
-    if bdist_index is not None:
+    if 'sdist' not in sys.argv:
         package_data.append(os.path.join('lib', library_name))
 
     setup(
-        name='pydis',
+        name='py_dis',
         author='Kyle',
         author_email='kyle@novogen.org',
         description='Python bindings for Zydis library',
