@@ -130,9 +130,14 @@ def setup_package():
     except ValueError:
         pass
 
+    with open('README.md') as readme:
+        long_description = readme.read()
+
     setup(
         name='pydis',
-        description='Python bindings for Zydis',
+        description='Python bindings for Zydis library',
+        long_description=long_description,
+        long_description_content_type='text/markdown',
         version=get_version(),
         packages=['pydis'],
         python_requires='>=3.6',
