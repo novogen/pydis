@@ -128,27 +128,44 @@ def setup_package():
         bdist_index = sys.argv.index('bdist_wheel')
         set_wheel_tags(bdist_index)
     except ValueError:
-        pass
+        bdist_index = None
 
     with open('README.md') as readme:
         long_description = readme.read()
 
+    package_data = ['LICENSE']
+
+    if bdist_index is not None:
+        package_data.append(os.path.join('lib', library_name))
+
     setup(
         name='pydis',
+        author='Kyle',
+        author_email='kyle@novogen.org',
         description='Python bindings for Zydis library',
         long_description=long_description,
         long_description_content_type='text/markdown',
         version=get_version(),
         packages=['pydis'],
         python_requires='>=3.6',
+        license='MIT',
         scripts=['scripts/pydisinfo'],
         cmdclass={
             'build': BuildCommand,
             'develop': DevelopCommand
         },
-        package_data={
-            'pydis': [os.path.join('lib', library_name)]
-        },
+        package_data={'pydis': package_data},
+        classifiers=(
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Developers',
+            'License :: OSI Approved :: MIT License',
+            'Programming Language :: C',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: Implementation :: CPython',
+            'Topic :: Software Development :: Disassemblers',
+            'Operating System :: MacOS',
+            'Operating System :: Unix'
+        ),
     )
 
 

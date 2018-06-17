@@ -44,5 +44,5 @@ ones provided by a default python installation. Once the minimum tooling is inst
 will build Zydis and install the package.
 
 ## Usage
-Documentation is currently being worked on. For now the example script [pydisinfo](../blob/master/scripts/pydisinfo) is
+Documentation is currently being worked on. For now the example script [pydisinfo](../master/scripts/pydisinfo) is
 the best place to look for example usage.
