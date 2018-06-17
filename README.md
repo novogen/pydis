@@ -32,16 +32,15 @@ Pydis requires a python version >=3.6. The package has only been tested on macOS
 uses `ctypes` to interface with zydis it may or may not work on other interpretters.
 
 ## Installing
-Pydis is currently not on PyPi.
-
-A wheel file is provided for macOS and linux distros with manylinux1 support. You can install by running:
-`pip install <wheel file>`
+```bash
+pip install py_dis
+```
 or you can build from source as described below.
 
 ## Building
 Your machine will need `cmake` and a C compiler in order to build Zydis. Pydis does not use any python modules beyond
-ones provided by a default python installation. Once the minimum tooling is installed running `python setup.py install`
-will build Zydis and install the package.
+ones provided by a default python installation. Once the minimum tooling is installed running:
+`python setup.py build install` will build Zydis and install the package.
 
 ## Usage
 Documentation is currently being worked on. For now the example script [pydisinfo](../master/scripts/pydisinfo) is
