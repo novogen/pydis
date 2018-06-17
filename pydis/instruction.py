@@ -3,14 +3,14 @@ from .types import (MachineMode, OperandType, OperandVisibility, OperandAction, 
                     SwizzleModes, ConversionMode, ExceptionClass, InstructionAttribute)
 from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm,
                           InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast,
-                          InstructionMeta as RawInstructionMeta)
+                          InstructionMeta as RawInstructionMeta, InstructionRaw)
 from .interface import MnemonicGetString, RegisterGetString, RegisterGetClass, RegisterGetId
 from .generate_types import Register as RegisterEnum, InstructionCategory, ISAExt, ISASet, Mnemonic
 from .formatter import Formatter, default_formatter
 
 
 class Register(int):
-    def __new__(cls, value):
+    def __new__(cls, value: int):
         return int.__new__(cls, RegisterEnum(value))
 
     def __str__(self) -> str:
@@ -41,7 +41,7 @@ class Register(int):
 
 
 class AvxMask:
-    def __init__(self, avx_mask: RawAvxMask):
+    def __init__(self, avx_mask: RawAvxMask) -> None:
         self._avx_mask = avx_mask
 
     @property
@@ -62,7 +62,7 @@ class AvxMask:
 
 
 class AvxBroadcast:
-    def __init__(self, avx_broadcast: RawAvxBroadcast):
+    def __init__(self, avx_broadcast: RawAvxBroadcast) -> None:
         self._avx_broadcast = avx_broadcast
 
     @property
@@ -79,7 +79,7 @@ class AvxBroadcast:
 
 
 class InstructionAvx:
-    def __init__(self, instruction_avx: RawInstructionAvx):
+    def __init__(self, instruction_avx: RawInstructionAvx) -> None:
         self._instruction_avx = instruction_avx
 
     @property
@@ -120,7 +120,7 @@ class InstructionAvx:
 
 
 class InstructionMeta:
-    def __init__(self, instruction_meta: RawInstructionMeta):
+    def __init__(self, instruction_meta: RawInstructionMeta) -> None:
         self._instruction_meta = instruction_meta
 
     @property
@@ -145,7 +145,7 @@ class InstructionMeta:
 
 
 class MemoryPointer:
-    def __init__(self, memory_pointer: OperandPtr):
+    def __init__(self, memory_pointer: OperandPtr) -> None:
         self._memory_pointer = memory_pointer
 
     @property
@@ -163,7 +163,7 @@ class MemoryPointer:
 
 # TODO Figure out a way to calculate relative offsets
 class MemoryImmediate:
-    def __init__(self, memory_immediate: OperandImm):
+    def __init__(self, memory_immediate: OperandImm) -> None:
         self._memory_immediate = memory_immediate
 
     @property
@@ -184,7 +184,7 @@ class MemoryImmediate:
 
 
 class MemoryOperand:
-    def __init__(self, memory_operand: OperandMem):
+    def __init__(self, memory_operand: OperandMem) -> None:
         self._memory_operand = memory_operand
 
     @property
@@ -219,7 +219,7 @@ class MemoryOperand:
 
 
 class Operand:
-    def __init__(self, operand: RawOperand, instruction: RawInstruction = None, index: int = -1):
+    def __init__(self, operand: RawOperand, instruction: RawInstruction = None, index: int = -1) -> None:
         self._operand = operand
         self._instruction = instruction
         self._index = index
@@ -261,7 +261,7 @@ class Operand:
         return self._operand.elementCount
 
     @property
-    def register(self) -> ElementTypes:
+    def register(self) -> Register:
         return Register(self._operand.reg.value)
 
     @property
@@ -303,7 +303,7 @@ class Operand:
 
 
 class Instruction:
-    def __init__(self, instruction: RawInstruction):
+    def __init__(self, instruction: RawInstruction) -> None:
         self._instruction = instruction
 
     @property
@@ -311,7 +311,7 @@ class Instruction:
         return MachineMode(self._instruction.machineMode)
 
     @property
-    def mnemonic(self):
+    def mnemonic(self) -> str:
         if hasattr(self, '_mnemonic'):
             return self._mnemonic
 
@@ -386,8 +386,8 @@ class Instruction:
 
     # TODO Copy returned type and add type annotation
     @property
-    def raw(self):
-        return InstructionAvx(self._instruction.avx)
+    def raw(self) -> InstructionRaw:
+        return self._instruction.raw
 
     @property
     def underlying_type(self) -> RawInstruction:

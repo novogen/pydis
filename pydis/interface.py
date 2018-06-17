@@ -137,7 +137,7 @@ def RegisterGetClass(register: Register) -> RegisterClass:
     return RegisterClass(_zydis.ZydisRegisterGetClass(register))
 
 
-def RegisterGetString(register: Register):
+def RegisterGetString(register: Register) -> str:
     string = _zydis.ZydisRegisterGetString(register)
     return string.decode('ascii') if string is not None else ''
 

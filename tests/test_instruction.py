@@ -1,15 +1,17 @@
 import unittest
 import struct
 
-from pydis.instruction import (Instruction, RawInstruction, InstructionAvx, RawInstructionAvx, InstructionMeta,\
+from pydis.instruction import (Instruction, RawInstruction, InstructionAvx, RawInstructionAvx, InstructionMeta,
                                RawInstructionMeta)
 from pydis.types import (MachineMode, InstructionEncoding, MaskModes, BroadcastModes, RoundingModes, SwizzleModes,
                          ConversionMode, ExceptionClass, InstructionAttribute)
 from pydis.generate_types import InstructionCategory, ISAExt, ISASet, Mnemonic
 
+
 instruction_format = 'BxHB15sBBBBBBB640sQQ21sx12s4s168sxx'
 avx_format = 'HBBBBBBBBBB'
 meta_format = 'BBBB'
+
 
 class TestInstruction(unittest.TestCase):
     def test_instruction_decode(self):
@@ -123,6 +125,7 @@ class TestInstruction(unittest.TestCase):
         instruction = Instruction(raw_instruction)
 
         self.assertEqual(instruction.mnemonic, 'mov')
+
 
 if __name__ == '__main__':
     unittest.main()
