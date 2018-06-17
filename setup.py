@@ -64,11 +64,11 @@ def build_zydis(command, debug_build):
     library_path = os.path.join(package_dir, 'pydis', 'lib')
     library = os.path.join(library_path, library_name)
 
-    if not os.path.exists(os.path.join(package_dir, 'pydis', 'zydis')):
+    if not os.path.exists(os.path.join(package_dir, 'zydis')):
         subprocess.check_call(['git', 'submodule', 'init'], cwd=package_dir)
 
     if not os.path.exists(library):
-        cmake_build(os.path.join(package_dir, 'pydis', 'zydis'), library_name, dest_dir=library_path,
+        cmake_build(os.path.join(package_dir, 'zydis'), library_name, dest_dir=library_path,
                     debug_build=debug_build)
     else:
         command.announce('Zydis already built')
@@ -133,43 +133,33 @@ def setup_package():
     with open('README.md') as readme:
         long_description = readme.read()
 
-    if 'sdist' not in sys.argv:
-        package_data = [os.path.join('lib', library_name)]
-    else:
-        # Include zydis' source in sdist builds
-        package_data = ['zydis/**/*']
-
-    setup_args = dict(
-        name='py_dis',
-        author='Kyle',
-        author_email='kyle@novogen.org',
-        description='Python bindings for Zydis library',
-        long_description=long_description,
-        long_description_content_type='text/markdown',
-        version=get_version(),
-        packages=['pydis'],
-        python_requires='>=3.6',
-        license='MIT',
-        scripts=['scripts/pydisinfo'],
-        cmdclass={
-            'build': BuildCommand,
-            'develop': DevelopCommand
-        },
-        package_data={'pydis': package_data},
-        classifiers=(
-            'Development Status :: 5 - Production/Stable',
-            'Intended Audience :: Developers',
-            'License :: OSI Approved :: MIT License',
-            'Programming Language :: C',
-            'Programming Language :: Python :: 3.6',
-            'Programming Language :: Python :: Implementation :: CPython',
-            'Topic :: Software Development :: Disassemblers',
-            'Operating System :: MacOS',
-            'Operating System :: Unix'
-        ),
-    )
-
-    setup(**setup_args)
+    setup(name='py_dis',
+          author='Kyle',
+          author_email='kyle@novogen.org',
+          description='Python bindings for Zydis library',
+          long_description=long_description,
+          long_description_content_type='text/markdown',
+          version=get_version(),
+          packages=['pydis'],
+          python_requires='>=3.6',
+          license='MIT',
+          scripts=['scripts/pydisinfo'],
+          cmdclass={
+              'build': BuildCommand,
+              'develop': DevelopCommand
+          },
+          package_data={'pydis': [os.path.join('lib', library_name)]},
+          classifiers=(
+              'Development Status :: 5 - Production/Stable',
+              'Intended Audience :: Developers',
+              'License :: OSI Approved :: MIT License',
+              'Programming Language :: C',
+              'Programming Language :: Python :: 3.6',
+              'Programming Language :: Python :: Implementation :: CPython',
+              'Topic :: Software Development :: Disassemblers',
+              'Operating System :: MacOS',
+              'Operating System :: Unix'
+          ))
 
 
 if __name__ == '__main__':
