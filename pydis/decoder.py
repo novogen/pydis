@@ -3,31 +3,60 @@ from ctypes import create_string_buffer, byref
 import typing
 
 from .types import MachineMode, AddressWidth, Status
+from .zydis_types import MaxInstructionLength
 from .interface import DecoderInit, DecoderDecodeBuffer
 from .instruction import Instruction
 
 
-def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,
-           address_width: AddressWidth = AddressWidth.Width64) -> typing.Generator[Instruction, None, None]:
-    status, decoder = DecoderInit(mode, address_width)
-
-    if status != Status.Success:
-        raise Exception(f'Failed to initialize the decoder: {status.name}')
-
-    # TODO Improve this shouldn't need to copy
-    buffer = create_string_buffer(buffer, len(buffer))
-    buffer_offset = 0
-    while True:
-        status, instruction = DecoderDecodeBuffer(decoder, byref(buffer, buffer_offset), len(buffer) - buffer_offset,
-                                                  address)
+class Decoder:
+    def __init__(self, mode: MachineMode = MachineMode.Long64,
+                 address_width: AddressWidth = AddressWidth.Width64) -> None:
+        status, self._decoder = DecoderInit(mode, address_width)
 
         if status != Status.Success:
-            break
+            raise Exception(f'Failed to initialize the decoder: {status.name}')
 
-        instruction = Instruction(instruction)
-        buffer_offset += instruction.length
-        address += instruction.length
-        yield instruction
+    def decode_instruction(self, buffer: bytes, address: int = 0,
+                           buffer_offset: int = 0) -> Instruction:
+        if not (0 <= buffer_offset < len(buffer)):
+            raise IndexError("offset out of range")
 
-    if status != Status.NoMoreData:
-        raise Exception(f'Failed while decoding: {status.name}')
+        length = max(len(buffer) - buffer_offset, MaxInstructionLength)
+        buf = create_string_buffer(buffer[buffer_offset:buffer_offset + length], length)
+
+        status, instruction = DecoderDecodeBuffer(self._decoder, buf, length, address)
+
+        if status != Status.Success:
+            raise Exception(f'Failed while decoding: {status.name}')
+
+        return Instruction(instruction)
+
+    def decode(self, buffer: bytes, address: int = 0,
+               buffer_offset: int = 0) -> typing.Generator[Instruction, None, None]:
+        if not (0 <= buffer_offset < len(buffer)):
+            raise IndexError("offset out of range")
+
+        length = len(buffer)
+        buf = create_string_buffer(buffer, length)
+
+        while True:
+            status, instruction = DecoderDecodeBuffer(self._decoder, byref(buf, buffer_offset),
+                                                      length - buffer_offset, address)
+
+            if status != Status.Success:
+                break
+
+            instruction = Instruction(instruction)
+            buffer_offset += instruction.length
+            address += instruction.length
+            yield instruction
+
+        if status != Status.NoMoreData:
+            raise Exception(f'Failed while decoding: {status.name}')
+
+
+def decode(buffer, address: int = 0, mode: MachineMode = MachineMode.Long64,
+           address_width: AddressWidth = AddressWidth.Width64) -> typing.Generator[Instruction, None, None]:
+    decoder = Decoder(mode, address_width)
+
+    return decoder.decode(buffer, address)

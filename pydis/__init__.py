@@ -6,7 +6,8 @@ from .types import (AddressFormat, AddressWidth, BroadcastModes, ConversionMode,
 from .generate_types import ISAExt, ISASet, InstructionCategory, Mnemonic
 from .zydis_types import MaxInstructionLength, MaxOperandCount, MaxCPUFlag, MaxDecoderMode
 from .formatter import Formatter, default_formatter
-from .decoder import decode
+from .decoder import Decoder, decode
+
 
 __all__ = ['AddressFormat', 'AddressWidth', 'BroadcastModes', 'ConversionMode', 'CpuFlag', 'CpuFlagAction',
            'DecoderMode', 'DecoratorType', 'DisplacementFormat', 'ElementTypes', 'ExceptionClass', 'Feature',
@@ -15,6 +16,6 @@ __all__ = ['AddressFormat', 'AddressWidth', 'BroadcastModes', 'ConversionMode', 
            'MaxDecoderMode', 'MaxInstructionLength', 'MaxOperandCount', 'MemOpType', 'OpcodeMap', 'OperandAction',
            'OperandEncoding', 'OperandType', 'OperandVisibility', 'RegisterClass', 'RoundingModes', 'Status',
            'SwizzleModes', 'VectorLength', 'decode', 'default_formatter', 'ISAExt', 'ISASet', 'InstructionCategory',
-           'Mnemonic']
+           'Mnemonic', 'Decoder']
 
 __version__ = '0.1'
