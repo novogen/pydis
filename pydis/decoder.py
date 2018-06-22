@@ -2,9 +2,9 @@ from ctypes import create_string_buffer, byref
 
 import typing
 
-from .types import MachineMode, AddressWidth, Status
+from .types import MachineMode, AddressWidth, Status, DecoderMode
 from .zydis_types import MaxInstructionLength
-from .interface import DecoderInit, DecoderDecodeBuffer
+from .interface import DecoderInit, DecoderDecodeBuffer, DecoderEnableMode
 from .instruction import Instruction
 
 
@@ -15,6 +15,22 @@ class Decoder:
 
         if status != Status.Success:
             raise Exception(f'Failed to initialize the decoder: {status.name}')
+
+    @property
+    def minimal(self) -> bool:
+        return self.is_mode_enabled(DecoderMode.Minimal)
+
+    @minimal.setter
+    def minimal(self, enabled: bool) -> None:
+        self.set_mode(DecoderMode.Minimal, enabled)
+
+    def is_mode_enabled(self, mode: DecoderMode) -> bool:
+        return bool(self._decoder.decoderMode[mode])
+
+    def set_mode(self, mode: DecoderMode, enabled: bool) -> None:
+        status = DecoderEnableMode(self._decoder, mode, enabled)
+        if status != Status.Success:
+            raise Exception(f'Failed to set mode: {status.name}')
 
     def decode_instruction(self, buffer: bytes, address: int = 0,
                            buffer_offset: int = 0) -> Instruction:
