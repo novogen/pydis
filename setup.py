@@ -133,7 +133,7 @@ def setup_package():
     with open('README.md') as readme:
         long_description = readme.read()
 
-    setup(name='py_dis',
+    setup(name='py-dis',
           author='Kyle',
           author_email='kyle@novogen.org',
           description='Python bindings for Zydis library',
@@ -158,7 +158,8 @@ def setup_package():
               'Programming Language :: Python :: Implementation :: CPython',
               'Topic :: Software Development :: Disassemblers',
               'Operating System :: MacOS',
-              'Operating System :: Unix'
+              'Operating System :: Unix',
+              'Operating System :: Microsoft'
           ))
 
 

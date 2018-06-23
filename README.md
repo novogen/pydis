@@ -27,19 +27,20 @@ js 0x007FFFFFFF42DB15
 The module uses the same field names as Zydis with the exception that snake_case is used instead of camelCase.
 
 ## Requirements
-Pydis requires a python version >=3.6. The package has only been tested on macOS and linux running cpython. Since pydis
-uses `ctypes` to interface with zydis it may or may not work on other interpretters.
+Pydis requires a python version >=3.6. The package has been tested on macOS, linux, and windows running cpython. Since 
+pydis uses `ctypes` to interface with zydis it may or may not work on other interpreters.
 
 ## Installing
 ```bash
-pip install py_dis
+pip install py-dis
 ```
 or you can build from source as described below.
 
 ## Building
-Your machine will need `cmake` and a C compiler in order to build Zydis. Pydis does not use any python modules beyond
-ones provided by a default python installation. Once the minimum tooling is installed running:
-`python setup.py build install` will build Zydis and install the package.
+MacOS and linux machines will need cmake and a C compiler in order to build Zydis. Windows machines will need Visual 
+Studios. Pydis does not use any python modules beyond ones provided by a default python installation.
+
+With the tooling installed running: `python setup.py build install` will build Zydis and install the package.
 
 ## Usage
 Documentation is currently being worked on. For now the example script [pydisinfo](../master/scripts/pydisinfo) is
