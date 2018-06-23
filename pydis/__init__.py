@@ -18,4 +18,4 @@ __all__ = ['AddressFormat', 'AddressWidth', 'BroadcastModes', 'ConversionMode', 
            'SwizzleModes', 'VectorLength', 'decode', 'default_formatter', 'ISAExt', 'ISASet', 'InstructionCategory',
            'Mnemonic', 'Decoder']
 
-__version__ = '0.1'
+__version__ = '0.2'
