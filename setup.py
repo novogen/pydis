@@ -3,7 +3,6 @@ import re
 import sys
 import shutil
 import subprocess
-import platform
 
 from setuptools import setup
 from setuptools.command.develop import develop
