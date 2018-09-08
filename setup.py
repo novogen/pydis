@@ -3,6 +3,7 @@ import re
 import sys
 import shutil
 import subprocess
+import platform
 
 from setuptools import setup
 from setuptools.command.develop import develop
@@ -41,7 +42,7 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
 
     build_options = ['-DBUILD_SHARED_LIBS=ON']
 
-    if on_windows:
+    if on_windows and get_platform() == 'amd64':
         build_options += ['-A',  'x64']
 
     subprocess.check_call(['cmake', os.path.abspath(source_dir)] + build_options, cwd=build_dir)
