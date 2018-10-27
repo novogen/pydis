@@ -41,7 +41,8 @@ def cmake_build(source_dir, library_name, clean_build=False, build_dir=os.path.j
 
     build_options = ['-DBUILD_SHARED_LIBS=ON']
 
-    if on_windows:
+    # If the python interpreter is 64bit tell cmake to build the 64bit module.
+    if on_windows and 'amd64' in get_platform():
         build_options += ['-A',  'x64']
 
     subprocess.check_call(['cmake', os.path.abspath(source_dir)] + build_options, cwd=build_dir)
