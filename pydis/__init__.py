@@ -21,4 +21,4 @@ __all__ = ['AddressFormat', 'AddressWidth', 'BroadcastModes', 'ConversionMode', 
            'Mnemonic', 'Decoder', 'Register', 'AvxMask', 'AvxBroadcast', 'InstructionAvx', 'InstructionMeta',
            'MemoryPointer', 'MemoryImmediate', 'MemoryOperand', 'Operand', 'Instruction']
 
-__version__ = '0.2'
+__version__ = '0.3'

@@ -243,10 +243,11 @@ class CpuFlagAction(IntEnum):
 
     NoAction = 0  # Named "None" in Zydis
     Tested = 1
-    Modified = 2
-    Set0 = 3
-    Set1 = 4
-    Undefined = 5
+    TestedModified = 2
+    Modified = 3
+    Set0 = 4
+    Set1 = 5
+    Undefined = 6
 
 
 class ExceptionClass(IntEnum):
