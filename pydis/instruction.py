@@ -1,10 +1,12 @@
+import typing
+
 from .types import (MachineMode, OperandType, OperandVisibility, OperandAction, OperandEncoding, ElementTypes,
                     MemOpType, InstructionEncoding, OpcodeMap, CpuFlag, MaskModes, BroadcastModes, RoundingModes,
-                    SwizzleModes, ConversionMode, ExceptionClass, InstructionAttribute)
+                    SwizzleModes, ConversionMode, ExceptionClass, InstructionAttribute, Status)
 from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm,
                           InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast,
                           InstructionMeta as RawInstructionMeta, InstructionRaw)
-from .interface import MnemonicGetString, RegisterGetString, RegisterGetClass, RegisterGetId
+from .interface import MnemonicGetString, RegisterGetString, RegisterGetClass, RegisterGetId, CalcAbsoluteAddress
 from .generate_types import Register as RegisterEnum, InstructionCategory, ISAExt, ISASet, Mnemonic
 from .formatter import Formatter, default_formatter
 
@@ -291,6 +293,13 @@ class Operand:
     @property
     def underlying_type(self) -> RawOperand:
         return self._operand
+
+    @property
+    def absolute_address(self) -> typing.Optional[int]:
+        status, address = CalcAbsoluteAddress(self._instruction, self._operand)
+        if status == Status.Success:
+            return address
+        return None
 
     def to_string(self, formatter: Formatter = default_formatter) -> str:
         if self._index >= 0:
