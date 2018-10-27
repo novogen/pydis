@@ -79,8 +79,9 @@ def print_operands(instruction):
             print(f'  {"DISP ":>85} =  0x{operand.memory.displacement:016X}')
         elif operand.type == pydis.OperandType.Immediate:
             if operand.immediate.is_signed:
+                operand_size = instruction.raw.imm[i].size if i < 2 else 0
                 relative = 'R' if operand.immediate.is_relative else '_'
-                print(f'  (S {relative} {operand.immediate.size:2} 0x{operand.immediate.value:016X}')
+                print(f'  (S {relative} {operand_size:2} 0x{operand.immediate.value:016X})')
         else:
             print()  # end the current line
 
