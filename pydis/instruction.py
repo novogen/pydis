@@ -383,7 +383,7 @@ class Instruction:
     @property
     def accessed_flags(self) -> [CpuFlag]:
         """ Return a dict composed by CpuFlag: CpuFlagAction """
-        return {CpuFlag(idx): CpuFlagAction(flag.action) for idx, flag in enumerate(list(i._instruction.accessedFlags))}
+        return {CpuFlag(idx): CpuFlagAction(flag.action) for idx, flag in enumerate(list(self._instruction.accessedFlags))}
 
     @property
     def avx(self) -> InstructionAvx:
