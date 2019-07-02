@@ -380,10 +380,10 @@ class Instruction:
     def address(self) -> int:
         return self._instruction.instructionAddress
 
-    # TODO double check functionality of this property
     @property
     def accessed_flags(self) -> [CpuFlag]:
-        return [CpuFlag(flag.action) for flag in self._instruction.accessedFlags]
+        """ Return a dict composed by CpuFlag: CpuFlagAction """
+        return {CpuFlag(idx): CpuFlagAction(flag.action) for idx, flag in enumerate(list(i._instruction.accessedFlags))}
 
     @property
     def avx(self) -> InstructionAvx:
