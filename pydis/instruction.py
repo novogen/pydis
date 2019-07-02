@@ -1,7 +1,7 @@
 import typing
 
 from .types import (MachineMode, OperandType, OperandVisibility, OperandAction, OperandEncoding, ElementTypes,
-                    MemOpType, InstructionEncoding, OpcodeMap, CpuFlag, MaskModes, BroadcastModes, RoundingModes,
+                    MemOpType, InstructionEncoding, OpcodeMap, CpuFlag, CpuFlagAction, MaskModes, BroadcastModes, RoundingModes,
                     SwizzleModes, ConversionMode, ExceptionClass, InstructionAttribute, Status)
 from .zydis_types import (Instruction as RawInstruction, Operand as RawOperand, OperandMem, OperandPtr, OperandImm,
                           InstructionAvx as RawInstructionAvx, AvxMask as RawAvxMask, AvxBroadcast as RawAvxBroadcast,
